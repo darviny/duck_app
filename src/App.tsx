@@ -118,8 +118,8 @@ function App() {
             ></div>
           </div>
         </header>
-        <div className="gap-1 px-6 flex flex-1 justify-center py-5">
-          <div className="layout-content-container flex flex-col max-w-[920px] flex-1">
+        <div className="gap-6 px-12 flex flex-1 justify-center py-8">
+          <div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
             <h3 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Turn 1/5</h3>
             <div className="flex gap-3 p-3 flex-wrap pr-4">
               <div className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#e7edf4] pl-4 pr-4">
@@ -139,10 +139,10 @@ function App() {
                     ></div>
                   )}
                   <div className={`flex flex-1 flex-col gap-1 ${message.isUser ? 'items-end' : 'items-start'}`}>
-                    <p className={`text-[#49739c] text-[13px] font-normal leading-normal max-w-[360px] ${message.isUser ? 'text-right' : ''}`}>
+                    <p className={`text-[#49739c] text-[13px] font-normal leading-normal max-w-[600px] ${message.isUser ? 'text-right' : ''}`}>
                       {message.sender}
                     </p>
-                    <p className={`text-base font-normal leading-normal flex max-w-[360px] rounded-lg px-4 py-3 ${
+                    <p className={`text-base font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 ${
                       message.isUser ? 'bg-[#0c7ff2] text-slate-50' : 'bg-[#e7edf4] text-[#0d141c]'
                     }`}>
                       {message.content}
