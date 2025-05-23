@@ -24,6 +24,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    console.log('ChatInterface received messages:', messages);
+  }, [messages]);
+
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
