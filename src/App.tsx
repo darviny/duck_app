@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -18,42 +18,13 @@ interface Message {
 }
 
 function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      sender: 'Darwin the Duck',
-      content: "Quack! I'm ready to learn about 'velocity'. Can you explain it to me in simple terms?",
-      isUser: false
-    },
-    {
-      id: 2,
-      sender: 'Sarah',
-      content: "Velocity is the speed of something in a given direction. For example, a car traveling north at 60 mph has a velocity of 60 mph north.",
-      isUser: true
-    },
-    {
-      id: 3,
-      sender: 'Darwin the Duck',
-      content: "Quack! So, it's not just how fast something is moving, but also which way it's going?",
-      isUser: false
-    },
-    {
-      id: 4,
-      sender: 'Sarah',
-      content: "Exactly! Speed is just a number, but velocity includes the direction.",
-      isUser: true
-    },
-    {
-      id: 5,
-      sender: 'Darwin the Duck',
-      content: "Darvin is cool.",
-      isUser: false
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  // State to store the active chat conversation instance
-  // Using any type as a temporary solution - could be improved with proper typing
   const [chat, setChat] = useState<any>(null);
+  
+  // Use a ref to store accumulated text chunks from the AI response
+  // This avoids state update issues and ensures we capture all chunks
+  const accumulatedTextRef = useRef('');
 
   // Effect hook to initialize the chat when component mounts
   useEffect(() => {
@@ -67,7 +38,7 @@ function App() {
         
         // Create a new chat conversation using Amplify's client
         const { data: newChat } = await client.conversations.chat.create();
-        console.log('Chat creation response:', newChat);
+        console.log('Chat created:', newChat);
         
         // Only proceed if chat creation was successful
         if (newChat) {
@@ -80,16 +51,32 @@ function App() {
           const subscription = newChat.onStreamEvent({
             // Callback for handling incoming messages/events
             next: (event) => {
-              // Check if the event contains text content
+              // Handle incoming text chunks from the AI
               if (event.text) {
-                // Update messages state with the new AI response
-                // Using functional update to ensure we have the latest state
-                setMessages(prev => [...prev, {
-                  id: prev.length + 1,        // Generate a unique ID
-                  sender: 'Darwin the Duck',            // AI assistant's name
-                  content: event.text,        // The actual message content
-                  isUser: false               // Flag to indicate this is an AI message
-                }]);
+                // Append each text chunk to our accumulated text
+                accumulatedTextRef.current += event.text;
+              }
+              
+              // Check if this is the final event in the stream
+              if ('stopReason' in event) {
+                // Capture the complete message before resetting the ref
+                const completeMessage = accumulatedTextRef.current;
+                console.log('Stream complete, final message:', completeMessage);
+                
+                // Add the complete message to the chat history
+                setMessages(prev => {
+                  const newMessages = [...prev, {
+                    id: prev.length + 1,
+                    sender: 'Darwin the Duck',
+                    content: completeMessage,
+                    isUser: false
+                  }];
+                  console.log('Updated messages state:', newMessages);
+                  return newMessages;
+                });
+                
+                // Reset the accumulated text for the next message
+                accumulatedTextRef.current = '';
               }
             },
             // Error handling for the stream
@@ -113,12 +100,7 @@ function App() {
   }, []); // Empty dependency array means this effect runs once on mount
 
   const handleSendMessage = async () => {
-    console.log('Send button clicked');
-    console.log('Current chat state:', chat);
-    console.log('Current input value:', inputValue);
-    
     if (inputValue.trim() && chat) {
-      console.log('Conditions met, proceeding with message send');
       const newMessage: Message = {
         id: messages.length + 1,
         sender: 'Sarah',
