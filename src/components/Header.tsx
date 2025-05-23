@@ -23,7 +23,7 @@ const Header: React.FC = () => {
             </defs>
           </svg>
         </div>
-        <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">LinguaTeach</h2>
+        <h2 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">Darvin the Duck</h2>
       </div>
       <div className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">

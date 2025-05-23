@@ -21,7 +21,7 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      sender: 'Ducky',
+      sender: 'Darwin the Duck',
       content: "Quack! I'm ready to learn about 'velocity'. Can you explain it to me in simple terms?",
       isUser: false
     },
@@ -33,7 +33,7 @@ function App() {
     },
     {
       id: 3,
-      sender: 'Ducky',
+      sender: 'Darwin the Duck',
       content: "Quack! So, it's not just how fast something is moving, but also which way it's going?",
       isUser: false
     },
@@ -45,7 +45,7 @@ function App() {
     },
     {
       id: 5,
-      sender: 'Ducky',
+      sender: 'Darwin the Duck',
       content: "Darvin is cool.",
       isUser: false
     }
@@ -86,7 +86,7 @@ function App() {
                 // Using functional update to ensure we have the latest state
                 setMessages(prev => [...prev, {
                   id: prev.length + 1,        // Generate a unique ID
-                  sender: 'Ducky',            // AI assistant's name
+                  sender: 'Darwin the Duck',            // AI assistant's name
                   content: event.text,        // The actual message content
                   isUser: false               // Flag to indicate this is an AI message
                 }]);
@@ -133,7 +133,10 @@ function App() {
       try {
         // Send the message to the AI through the Amplify chat service
         // This is an async operation that communicates with the backend
-        await chat.sendMessage(inputValue);
+        const { data: message, errors } = await chat.sendMessage(inputValue);
+        if (errors) {
+          console.error('Message send errors:', errors);
+        }
         // Note: The AI's response will be handled by the stream subscription
         // we set up in the useEffect hook
       } catch (error) {
