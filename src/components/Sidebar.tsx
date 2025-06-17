@@ -1,4 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { generateClient } from 'aws-amplify/api';
+import { createAIHooks } from "@aws-amplify/ui-react-ai";
+import type { Schema } from '../../amplify/data/resource';
+
+const client = generateClient<Schema>({ authMode: "userPool" });
+const { useAIGeneration } = createAIHooks(client);
+
+interface Message {
+  id: number;
+  sender: string;
+  content: string;
+  isUser: boolean;
+}
 
 interface RubricItem {
   title: string;
@@ -6,24 +19,81 @@ interface RubricItem {
   score: number;
 }
 
-const Sidebar: React.FC = () => {
-  const rubricItems: RubricItem[] = [
+interface SidebarProps {
+  messages: Message[];
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ messages }) => {
+  const [rubricItems, setRubricItems] = useState<RubricItem[]>([
     {
       title: 'Clarity',
       description: 'Clear and concise explanation of the concept.',
-      score: 80
+      score: 0
     },
     {
       title: 'Accuracy',
       description: 'Accurate use of terminology and definitions.',
-      score: 70
+      score: 0
     },
     {
       title: 'Engagement',
       description: 'Engaging and interactive explanation.',
-      score: 50
+      score: 0
     }
-  ];
+  ]);
+
+  const [{ data, isLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+
+  const handleEvaluate = async () => {
+    if (messages.length === 0) return;
+    
+    const transcript = JSON.stringify({
+      session_id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      transcript: messages.map(msg => ({
+        id: msg.id,
+        sender: msg.sender,
+        content: msg.content,
+        isUser: msg.isUser
+      }))
+    });
+
+    console.log('Transcript being analyzed:', transcript);
+    analyzeTranscript({ transcript });
+  };
+
+  // Update rubric items when data changes
+  React.useEffect(() => {
+    if (data) {
+      console.log('Complete AI Response:', data);
+      setRubricItems([
+        {
+          title: 'Clarity',
+          description: 'Clear and concise explanation of the concept.',
+          score: data.clarity ?? 0
+        },
+        {
+          title: 'Accuracy',
+          description: 'Accurate use of terminology and definitions.',
+          score: data.accuracy ?? 0
+        },
+        {
+          title: 'Engagement',
+          description: 'Engaging and interactive explanation.',
+          score: data.engagement ?? 0
+        }
+      ]);
+
+      if (data.suggestions && data.suggestions.length > 0) {
+        console.log('Suggestions for improvement:', data.suggestions);
+      }
+      console.log('Scores:', {
+        clarity: data.clarity,
+        accuracy: data.accuracy,
+        engagement: data.engagement
+      });
+    }
+  }, [data]);
 
   return (
     <div className="layout-content-container flex flex-col w-[360px]">
@@ -53,6 +123,15 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
       ))}
+      <div className="flex justify-end px-4 py-4">
+        <button 
+          className={`bg-[#0c7ff2] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#0a6cd9] transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={handleEvaluate}
+          disabled={isLoading || messages.length === 0}
+        >
+          {isLoading ? 'Evaluating...' : 'Evaluate'}
+        </button>
+      </div>
     </div>
   );
 };

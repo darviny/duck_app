@@ -21,6 +21,7 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [chat, setChat] = useState<any>(null);
+  const initializedRef = useRef(false);
   
   // Use a ref to store accumulated text chunks from the AI response
   // This avoids state update issues and ensures we capture all chunks
@@ -30,6 +31,9 @@ function App() {
   useEffect(() => {
     // Async function to handle chat initialization
     const initializeChat = async () => {
+      if (initializedRef.current) return;
+      initializedRef.current = true;
+
       try {
         console.log('Starting chat initialization...');
         // Check if user is authenticated
@@ -87,11 +91,15 @@ function App() {
 
           // Cleanup function to unsubscribe from the stream
           // This prevents memory leaks when component unmounts
-          return () => subscription.unsubscribe();
+          return () => {
+            subscription.unsubscribe();
+            initializedRef.current = false;
+          };
         }
       } catch (error) {
         // Handle any errors during chat initialization
         console.error('Failed to create chat:', error);
+        initializedRef.current = false;
       }
     };
 
@@ -115,7 +123,7 @@ function App() {
       try {
         // Send the message to the AI through the Amplify chat service
         // This is an async operation that communicates with the backend
-        const { data: message, errors } = await chat.sendMessage(inputValue);
+        const { errors } = await chat.sendMessage(inputValue);
         if (errors) {
           console.error('Message send errors:', errors);
         }
@@ -143,7 +151,7 @@ function App() {
             onInputChange={setInputValue}
             onSendMessage={handleSendMessage}
           />
-          <Sidebar />
+          <Sidebar messages={messages} />
         </div>
       </div>
     </div>
