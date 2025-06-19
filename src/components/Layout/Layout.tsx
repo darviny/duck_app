@@ -4,6 +4,7 @@ import NavBar from '../NavBar/NavBar';
 import ToolBar from '../ToolBar/ToolBar';
 import StatPanel from '../StatPanel/StatPanel';
 import TodoList from '../TodoList/TodoList';
+import { WebGLComponent } from '../web-gl-component/web-gl-component';
 import { PopUpModalComponent } from '../pop-up-modal-component/pop-up-modal-component';
 import styles from './Layout.module.scss';
 
@@ -175,9 +176,10 @@ const Layout: React.FC<LayoutProps> = ({
       </div>
       
       <div className={styles.statPanelContainer}>
-        <StatPanel />
+        <WebGLComponent />
       </div>
       
+      {/* Rubric Panel (formerly TodoList) */}
       <div className={styles.todoListContainer}>
         <TodoList />
       </div>

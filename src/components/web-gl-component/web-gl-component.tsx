@@ -1,7 +1,7 @@
 import styles from './web-gl-component.module.scss';
 // import cx from 'classnames';
 import * as THREE from 'three';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Game from './ThreeJSModules/Game.js';
 
@@ -21,6 +21,57 @@ export interface WebGLComponentProps {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const WebGLComponent = ({ nextState }: WebGLComponentProps) => {
     const refContainer = useRef<HTMLDivElement>(null);
+    const [progress1, setProgress1] = useState(0);
+    const [progress2, setProgress2] = useState(0);
+    const [progress3, setProgress3] = useState(0);
+    const [progressPosition, setProgressPosition] = useState({ top: 20, left: 20, right: 20 });
+
+    // Calculate reactive position for progress bars
+    const updateProgressPosition = useCallback(() => {
+        const container = refContainer.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Calculate responsive positioning - bottom placement
+        const bottom = Math.max(1, 0);
+        const top = containerRect.height - bottom - 100; // 120px for 3 progress bars + gaps
+        const left = Math.max(20, containerRect.width * 0.05);
+        const right = Math.max(20, containerRect.width * 0.05);
+        
+        setProgressPosition({ top, left, right });
+    }, []);
+
+    // Update position on mount and resize
+    useEffect(() => {
+        updateProgressPosition();
+        window.addEventListener('resize', updateProgressPosition);
+        return () => window.removeEventListener('resize', updateProgressPosition);
+    }, [updateProgressPosition]);
+
+    // Simulate progress updates for demonstration
+    useEffect(() => {
+        const interval1 = setInterval(() => {
+            setProgress1(prev => (prev + 1) % 101);
+        }, 100);
+
+        const interval2 = setInterval(() => {
+            setProgress2(prev => (prev + 0.5) % 101);
+        }, 150);
+
+        const interval3 = setInterval(() => {
+            setProgress3(prev => (prev + 0.3) % 101);
+        }, 200);
+
+        return () => {
+            clearInterval(interval1);
+            clearInterval(interval2);
+            clearInterval(interval3);
+        };
+    }, []);
+
     useEffect(() => {
         const container = refContainer.current;
         if (!container) return;
@@ -44,11 +95,13 @@ export const WebGLComponent = ({ nextState }: WebGLComponentProps) => {
 
         // Post-processing
         const composer = new EffectComposer(renderer);
-        composer.addPass(new RenderPass(scene, camera));
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
         // composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
         const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
         composer.addPass(bloomPass);
-        composer.addPass(new PixelatePass(renderResolution));
+        const pixelatePass = new PixelatePass(renderResolution);
+        composer.addPass(pixelatePass);
 
         // Controls
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -99,17 +152,90 @@ export const WebGLComponent = ({ nextState }: WebGLComponentProps) => {
 
         // Cleanup function
         return () => {
+            // Cancel animation frame
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            // Remove event listeners
             window.removeEventListener('resize', handleResize);
+
+            // Dispose of controls
+            controls.dispose();
+
+            // Dispose of post-processing passes
+            if (bloomPass) {
+                bloomPass.dispose();
+            }
+            if (pixelatePass && pixelatePass.dispose) {
+                pixelatePass.dispose();
+            }
+
+            // Dispose of composer
+            if (composer) {
+                composer.dispose();
+            }
+
+            // Dispose of renderer
+            if (renderer) {
+                renderer.dispose();
+            }
+
+            // Remove canvas from DOM
             if (container && renderer.domElement.parentNode === container) {
                 container.removeChild(renderer.domElement);
             }
-            cancelAnimationFrame(animationId);
-            renderer.dispose();
+
+            // Dispose of scene and camera
+            if (scene) {
+                scene.clear();
+            }
         };
     }, [nextState]);
+
     return (
         <div ref={refContainer} className={styles.webglcomponent}>
-            {' '}
+            <div 
+                className={styles.progressOverlay}
+                style={{
+                    top: `${progressPosition.top}px`,
+                    left: `${progressPosition.left}px`,
+                    right: `${progressPosition.right}px`
+                }}
+            >
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Clarity</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress1}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress1)}%</div>
+                </div>
+                
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Accuracy</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress2}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress2)}%</div>
+                </div>
+                
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Engagement</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress3}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress3)}%</div>
+                </div>
+            </div>
         </div>
     );
 };

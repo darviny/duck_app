@@ -165,36 +165,8 @@ function App() {
     setShowTopicSelector(true);
   };
 
-  const handleAnalyzeTranscript = async () => {
-    if (messages.length === 0) return;
-    
-    try {
-      const transcript = JSON.stringify({
-        session_id: Date.now().toString(),
-        timestamp: new Date().toISOString(),
-        topic: currentTopic,
-        subject: currentSubject,
-        transcript: messages.map(msg => ({
-          id: msg.id,
-          sender: msg.sender,
-          content: msg.content,
-          isUser: msg.isUser
-        }))
-      });
-
-      const { data: analysis } = await client.generations.analyzeTranscript({
-        transcript
-      });
-
-      console.log('Analysis result:', analysis);
-      // You can display this analysis in the StatPanel or as a modal
-    } catch (error) {
-      console.error('Analysis error:', error);
-    }
-  };
-
   return (
-    <div className="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
+    <div className="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif', backgroundColor: 'var(--background)' }}>
       <Layout
         isAuthenticated={isAuthenticated}
         user={user}
