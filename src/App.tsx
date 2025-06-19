@@ -3,17 +3,28 @@ import { useState, useEffect, useRef } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../amplify/data/resource';
 import { getCurrentUser, signIn, signOut, fetchUserAttributes } from 'aws-amplify/auth';
+import { createAIHooks } from "@aws-amplify/ui-react-ai";
 import Layout from './components/Layout/Layout';
 import ChatInterface from './components/ChatInterface';
 import TopicSelector from './components/TopicSelector';
 
 const client = generateClient<Schema>();
+const { useAIGeneration } = createAIHooks(client);
 
 interface Message {
   id: number;
   sender: string;
   content: string;
   isUser: boolean;
+}
+
+interface AIEvaluationData {
+  clarity: number;
+  accuracy: number;
+  engagement: number;
+  suggestions: string[];
+  evidence: string[];
+  overall_comment: string;
 }
 
 function App() {
@@ -26,8 +37,18 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [showTopicSelector, setShowTopicSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiEvaluation, setAiEvaluation] = useState<AIEvaluationData>({
+    clarity: 0,
+    accuracy: 0,
+    engagement: 0,
+    suggestions: [],
+    evidence: [],
+    overall_comment: ''
+  });
   const initializedRef = useRef(false);
   const accumulatedTextRef = useRef('');
+
+  const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
 
   // Check authentication status
   useEffect(() => {
@@ -44,6 +65,29 @@ function App() {
     };
     checkAuth();
   }, []);
+
+  // Update AI evaluation when data changes
+  useEffect(() => {
+    console.log('AI Data received:', aiData);
+    console.log('AI Loading state:', aiLoading);
+    
+    if (aiData) {
+      console.log('Processing AI evaluation data:', JSON.stringify(aiData, null, 2));
+      setAiEvaluation({
+        clarity: aiData.clarity ?? 0,
+        accuracy: aiData.accuracy ?? 0,
+        engagement: aiData.engagement ?? 0,
+        suggestions: (aiData.suggestions ?? []).filter((s): s is string => s !== null),
+        evidence: (aiData.evidence ?? []).filter((e): e is string => e !== null),
+        overall_comment: aiData.overall_comment ?? ''
+      });
+      console.log('AI Evaluation state updated:', {
+        clarity: aiData.clarity ?? 0,
+        accuracy: aiData.accuracy ?? 0,
+        engagement: aiData.engagement ?? 0
+      });
+    }
+  }, [aiData, aiLoading]);
 
   // Initialize chat when authenticated
   useEffect(() => {
@@ -165,6 +209,38 @@ function App() {
     setShowTopicSelector(true);
   };
 
+  const handleEvaluate = async () => {
+    if (messages.length === 0) {
+      console.log('No messages to evaluate');
+      return;
+    }
+    
+    console.log('Starting AI evaluation...');
+    console.log('Current messages:', messages);
+    
+    const transcript = JSON.stringify({
+      session_id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      topic: currentTopic,
+      subject: currentSubject,
+      transcript: messages.map(msg => ({
+        id: msg.id,
+        sender: msg.sender,
+        content: msg.content,
+        isUser: msg.isUser
+      }))
+    });
+
+    console.log('Transcript being analyzed:', transcript);
+    
+    try {
+      const result = await analyzeTranscript({ transcript });
+      console.log('Analyze transcript result:', result);
+    } catch (error) {
+      console.error('Error calling analyzeTranscript:', error);
+    }
+  };
+
   return (
     <div className="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif', backgroundColor: 'var(--background)' }}>
       <Layout
@@ -173,6 +249,9 @@ function App() {
         onSignIn={handleSignIn}
         onSignOut={handleSignOut}
         onNewDuck={handleNewDuck}
+        aiEvaluation={aiEvaluation}
+        onEvaluate={handleEvaluate}
+        isEvaluating={aiLoading}
       >
         <div className="w-full h-full flex flex-col">
           {!isAuthenticated ? (
@@ -194,7 +273,7 @@ function App() {
             </div>
           ) : (
             <div className="flex-1 flex flex-col">
-              <div className="flex justify-center items-center p-6 border-b border-gray-200">
+              <div className="flex justify-center items-center p-6">
                 <div className="space-y-1 text-center">
                   <h2 className="text-gray-600 font-medium" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', letterSpacing: '0.05em' }}>
                     Current Topic:

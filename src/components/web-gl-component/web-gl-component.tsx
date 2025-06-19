@@ -16,10 +16,18 @@ import { DuckStates } from './ThreeJSModules/enums';
 
 export interface WebGLComponentProps {
     nextState?: DuckStates;
+    aiEvaluation?: {
+        clarity: number;
+        accuracy: number;
+        engagement: number;
+        suggestions: string[];
+        evidence: string[];
+        overall_comment: string;
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = ({ nextState }: WebGLComponentProps) => {
+export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps) => {
     const refContainer = useRef<HTMLDivElement>(null);
     const [progress1, setProgress1] = useState(0);
     const [progress2, setProgress2] = useState(0);
@@ -51,26 +59,67 @@ export const WebGLComponent = ({ nextState }: WebGLComponentProps) => {
         return () => window.removeEventListener('resize', updateProgressPosition);
     }, [updateProgressPosition]);
 
-    // Simulate progress updates for demonstration
+    // Use AI evaluation data if available, otherwise use animated values
     useEffect(() => {
-        const interval1 = setInterval(() => {
-            setProgress1(prev => (prev + 1) % 101);
-        }, 100);
+        if (aiEvaluation) {
+            // Animate to new AI values smoothly
+            const animateToValue = (currentValue: number, targetValue: number, setter: (value: number) => void) => {
+                const duration = 1000; // 1 second animation
+                const startTime = Date.now();
+                const startValue = currentValue;
+                const change = targetValue - startValue;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing function for smooth animation
+                    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                    const currentValue = startValue + (change * easeOutQuart);
+                    
+                    setter(currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                animate();
+            };
+            
+            animateToValue(progress1, aiEvaluation.clarity, setProgress1);
+            animateToValue(progress2, aiEvaluation.accuracy, setProgress2);
+            animateToValue(progress3, aiEvaluation.engagement, setProgress3);
+        } else {
+            // Fallback to animated values when no AI data is available
+            const interval1 = setInterval(() => {
+                setProgress1(prev => {
+                    if (prev >= 85) return 85;
+                    return prev + 1;
+                });
+            }, 100);
 
-        const interval2 = setInterval(() => {
-            setProgress2(prev => (prev + 0.5) % 101);
-        }, 150);
+            const interval2 = setInterval(() => {
+                setProgress2(prev => {
+                    if (prev >= 92) return 92;
+                    return prev + 1.5;
+                });
+            }, 80);
 
-        const interval3 = setInterval(() => {
-            setProgress3(prev => (prev + 0.3) % 101);
-        }, 200);
+            const interval3 = setInterval(() => {
+                setProgress3(prev => {
+                    if (prev >= 78) return 78;
+                    return prev + 1.2;
+                });
+            }, 90);
 
-        return () => {
-            clearInterval(interval1);
-            clearInterval(interval2);
-            clearInterval(interval3);
-        };
-    }, []);
+            return () => {
+                clearInterval(interval1);
+                clearInterval(interval2);
+                clearInterval(interval3);
+            };
+        }
+    }, [aiEvaluation]);
 
     useEffect(() => {
         const container = refContainer.current;

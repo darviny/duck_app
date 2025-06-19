@@ -2,7 +2,12 @@ import React from 'react';
 import { TodoListProps } from '../../types/components';
 import styles from './TodoList.module.scss';
 
-const TodoList: React.FC<TodoListProps> = ({ className, id }) => {
+interface ExtendedTodoListProps extends TodoListProps {
+  onEvaluate?: () => void;
+  isEvaluating?: boolean;
+}
+
+const TodoList: React.FC<ExtendedTodoListProps> = ({ className, id, onEvaluate, isEvaluating }) => {
   return (
     <div className={`${styles.todoList} ${className || ''}`} id={id}>
       <div className={styles.todoListContent}>
@@ -10,6 +15,13 @@ const TodoList: React.FC<TodoListProps> = ({ className, id }) => {
         <div className={styles.placeholder}>
           Learning assessment rubric - will display evaluation criteria and progress tracking
         </div>
+        <button 
+          className={styles.evaluateButton}
+          onClick={onEvaluate}
+          disabled={isEvaluating}
+        >
+          {isEvaluating ? 'Evaluating...' : 'Evaluate'}
+        </button>
       </div>
     </div>
   );

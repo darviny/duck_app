@@ -16,6 +16,16 @@ export interface LayoutProps extends Omit<OriginalLayoutProps, 'children'> {
   onSignIn?: () => void;
   onSignOut?: () => void;
   onNewDuck?: () => void;
+  aiEvaluation?: {
+    clarity: number;
+    accuracy: number;
+    engagement: number;
+    suggestions: string[];
+    evidence: string[];
+    overall_comment: string;
+  };
+  onEvaluate?: () => void;
+  isEvaluating?: boolean;
 }
 
 const AUTOHIDE_DELAY = 1500; // ms
@@ -29,7 +39,10 @@ const Layout: React.FC<LayoutProps> = ({
   user,
   onSignIn,
   onSignOut,
-  onNewDuck
+  onNewDuck,
+  aiEvaluation,
+  onEvaluate,
+  isEvaluating
 }) => {
   // State for Help modal
   const [showHelp, setShowHelp] = useState(false);
@@ -176,12 +189,17 @@ const Layout: React.FC<LayoutProps> = ({
       </div>
       
       <div className={styles.statPanelContainer}>
-        <WebGLComponent />
+        <WebGLComponent 
+          aiEvaluation={aiEvaluation}
+        />
       </div>
       
       {/* Rubric Panel (formerly TodoList) */}
       <div className={styles.todoListContainer}>
-        <TodoList />
+        <TodoList 
+          onEvaluate={onEvaluate}
+          isEvaluating={isEvaluating}
+        />
       </div>
       {/* Help Modal */}
       {showHelp && (
