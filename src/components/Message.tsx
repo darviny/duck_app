@@ -17,11 +17,11 @@ const Message: React.FC<MessageProps> = ({ sender, content, isUser }) => {
         ></div>
       )}
       <div className={`flex flex-1 flex-col gap-1 ${isUser ? 'items-end' : 'items-start'}`}>
-        <p className={`text-[#49739c] text-[13px] font-normal leading-normal max-w-[600px] ${isUser ? 'text-right' : ''}`}>
+        <p className={`text-[#000000] text-[16px] font-semibold leading-normal max-w-[600px] font-['Tiny5'] ${isUser ? 'text-right' : ''}`}>
           {sender}
         </p>
-        <p className={`text-base font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 ${
-          isUser ? 'bg-[#0c7ff2] text-slate-50' : 'bg-[#e7edf4] text-[#0d141c]'
+        <p className={`text-sm font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 text-left ${
+          isUser ? 'bg-[#272727] text-[#ffffff]' : 'bg-[#f6f6e9] text-[#000000] border-2 border-[#000000]'
         }`}>
           {content}
         </p>

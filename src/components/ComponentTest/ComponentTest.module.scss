@@ -1,0 +1,71 @@
+.componentTest {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.testSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--white);
+
+  h2 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+}
+
+.individualTests {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.componentWrapper {
+  h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+  }
+}
+
+.layoutTest {
+  height: 600px;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mainContentPlaceholder {
+  padding: 1rem;
+  text-align: center;
+  background-color: var(--background);
+  border-radius: 8px;
+  margin: 1rem;
+
+  h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+  }
+}
+
+.typescriptTest {
+  background-color: var(--panel-bg);
+  padding: 1rem;
+  border-radius: 8px;
+
+  p {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+} 

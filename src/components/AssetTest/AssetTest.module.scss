@@ -1,0 +1,82 @@
+.assetTest {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.testSection {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+
+  h3 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.success {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.error {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.imageTest {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+
+  > div {
+    text-align: center;
+    
+    h4 {
+      margin-bottom: 10px;
+      color: #555;
+      font-size: 14px;
+    }
+  }
+}
+
+.testImage {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: white;
+}
+
+.errorMessage {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  color: #721c24;
+
+  h3 {
+    margin-top: 0;
+  }
+} 

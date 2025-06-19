@@ -1,0 +1,101 @@
+.toolBar {
+  width: 100%;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  height: 51px;
+  object-fit: cover;
+}
+
+.toolBarBg {
+  width: 100%;
+  position: relative;
+  background-color: #f6f6e9;
+  border-bottom: 2px solid #000;
+  box-sizing: border-box;
+  height: 52px;
+  align-content: center;
+}
+
+.toolsIcon {
+  width: 100%;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  height: 36px;
+  object-fit: cover;
+  align-content: center;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 25px;
+}
+
+.leftControls {
+  display: flex;
+  align-content: end;
+  justify-content: start;
+  margin-left: 350px;
+  gap: 10px;
+}
+
+.rightControls {
+  display: flex;
+  padding-right: 25px;
+  gap: 15px;
+}
+
+// Base button styles
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.controlIcon {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.stopCircleIcon {
+  // Button styles are inherited from the button element
+}
+
+.pauseCircleIcon {
+  // Button styles are inherited from the button element
+}
+
+.playCircleIcon {
+  // Button styles are inherited from the button element
+}
+
+.helpIcon {
+  // Button styles are inherited from the button element
+}
+
+.arrowsOutputIcon {
+  // Button styles are inherited from the button element
+} 

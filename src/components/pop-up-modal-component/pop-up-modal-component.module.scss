@@ -1,0 +1,55 @@
+.popupbg1Icon {
+    position: absolute;
+    top: 54px;
+    left: 0px;
+    width: 1155px;
+    height: 708px;
+    object-fit: cover;
+}
+.sorryThisPart {
+    position: absolute;
+    top: 377px;
+    left: 261px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 634px;
+    height: 107px;
+    text-shadow: 0px 4px 4px #ccdfd1;
+}
+.quackQuack1 {
+    margin: 0;
+}
+.quackQuack {
+    position: absolute;
+    top: 154px;
+    left: 201px;
+    font-size: 100px;
+    font-family: 'Rubik Bubbles';
+    color: #fff;
+    text-align: left;
+    display: inline-block;
+    width: 754px;
+    height: 126px;
+    text-shadow: 0px 6px 6px rgba(0, 0, 0, 0.55);
+}
+.exitbutton1Icon {
+    position: absolute;
+    top: 0px;
+    left: 977px;
+    width: 139px;
+    height: 135px;
+    object-fit: cover;
+}
+.popupbg1Parent {
+    width: 100%;
+    position: static;
+    height: 762px;
+    text-align: center;
+    font-size: 50px;
+    color: #000;
+    font-family: Tiny5;
+    align-content: start;
+    overflow: visible;
+    display: block;
+}

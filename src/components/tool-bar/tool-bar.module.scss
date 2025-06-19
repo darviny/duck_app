@@ -1,0 +1,101 @@
+.toolbarcomponentIcon {
+    width: 100%;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    height: 51px;
+    object-fit: cover;
+}
+
+.toolbarbg {
+    width: 100%;
+    position: relative;
+    background-color: #f6f6e9;
+    border-bottom: 2px solid #000;
+    box-sizing: border-box;
+    height: 52px;
+    align-content: center;
+}
+
+.toolsIcon {
+    width: 100%;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    height: 36px;
+    object-fit: cover;
+    align-content: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toolsIcon {
+    width: 100%;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    height: 36px;
+    object-fit: cover;
+}
+
+.stopCircleIcon {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.pauseCircleIcon {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.playCircleIcon {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.helpIcon {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.arrowsOutputIcon {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+.iconSettings {
+    position: absolute;
+    left: 47.16px;
+    width: 25px;
+    height: 25px;
+    object-fit: cover;
+    top: 0px;
+}
+.div1 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    padding: 1px;
+}
+.leftControls {
+    display: flex;
+    align-content: end;
+    justify-content: start;
+    margin-left: 350px;
+}
+.rightControls {
+    display: flex;
+    padding-right: 25px;
+}

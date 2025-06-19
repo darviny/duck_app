@@ -46,16 +46,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="layout-content-container flex flex-col w-[800px] flex-1">
-      <h3 className="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Turn 1/5</h3>
+    <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full">
       <div className="flex gap-3 p-3 flex-wrap pr-4">
-        <div className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#e7edf4] pl-4 pr-4">
-          <p className="text-[#0d141c] text-sm font-medium leading-normal">Explain the concept of 'velocity'</p>
-        </div>
       </div>
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto max-h-[calc(100vh-280px)] min-h-[200px]"
+        className="flex-1 overflow-y-auto max-h-[calc(100vh-380px)] min-h-[200px]"
       >
         {messages.map((message) => (
           <Message

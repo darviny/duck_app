@@ -1,12 +1,11 @@
 import './App.css';
 import { useState, useEffect, useRef } from 'react';
-import Header from './components/Header';
-import ChatInterface from './components/ChatInterface';
-import Sidebar from './components/Sidebar';
-
 import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '../amplify/data/resource'
-import { getCurrentUser } from 'aws-amplify/auth';
+import { type Schema } from '../amplify/data/resource';
+import { getCurrentUser, signIn, signOut, fetchUserAttributes } from 'aws-amplify/auth';
+import Layout from './components/Layout/Layout';
+import ChatInterface from './components/ChatInterface';
+import TopicSelector from './components/TopicSelector';
 
 const client = generateClient<Schema>();
 
@@ -21,139 +20,223 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [chat, setChat] = useState<any>(null);
+  const [currentTopic, setCurrentTopic] = useState('Distance Formula in Linear Algebra');
+  const [currentSubject, setCurrentSubject] = useState('Algebra');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showTopicSelector, setShowTopicSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const initializedRef = useRef(false);
-  
-  // Use a ref to store accumulated text chunks from the AI response
-  // This avoids state update issues and ensures we capture all chunks
   const accumulatedTextRef = useRef('');
 
-  // Effect hook to initialize the chat when component mounts
+  // Check authentication status
   useEffect(() => {
-    // Async function to handle chat initialization
-    const initializeChat = async () => {
-      if (initializedRef.current) return;
-      initializedRef.current = true;
+    const checkAuth = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        const attributes = await fetchUserAttributes();
+        setIsAuthenticated(true);
+        setUser({ ...currentUser, attributes });
+      } catch (error) {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    };
+    checkAuth();
+  }, []);
 
+  // Initialize chat when authenticated
+  useEffect(() => {
+    if (!isAuthenticated || initializedRef.current) return;
+    
+    const initializeChat = async () => {
       try {
         console.log('Starting chat initialization...');
-        // Check if user is authenticated
-        const user = await getCurrentUser();
-        console.log('Current user:', user);
-        
-        // Create a new chat conversation using Amplify's client
         const { data: newChat } = await client.conversations.chat.create();
-        console.log('Chat created:', newChat);
         
-        // Only proceed if chat creation was successful
         if (newChat) {
-          console.log('Chat created successfully, setting up stream...');
-          // Store the chat instance in state for future use
+          console.log('Chat created successfully');
           setChat(newChat);
           
-          // Set up real-time subscription to receive AI responses
-          // This creates a stream of events that we can listen to
           const subscription = newChat.onStreamEvent({
-            // Callback for handling incoming messages/events
             next: (event) => {
-              // Handle incoming text chunks from the AI
               if (event.text) {
-                // Append each text chunk to our accumulated text
                 accumulatedTextRef.current += event.text;
               }
               
-              // Check if this is the final event in the stream
               if ('stopReason' in event) {
-                // Capture the complete message before resetting the ref
                 const completeMessage = accumulatedTextRef.current;
                 console.log('Stream complete, final message:', completeMessage);
                 
-                // Add the complete message to the chat history
-                setMessages(prev => {
-                  const newMessages = [...prev, {
-                    id: prev.length + 1,
-                    sender: 'Darwin the Duck',
-                    content: completeMessage,
-                    isUser: false
-                  }];
-                  console.log('Updated messages state:', newMessages);
-                  return newMessages;
-                });
+                setMessages(prev => [...prev, {
+                  id: prev.length + 1,
+                  sender: 'Darwin the Duck',
+                  content: completeMessage,
+                  isUser: false
+                }]);
                 
-                // Reset the accumulated text for the next message
                 accumulatedTextRef.current = '';
               }
             },
-            // Error handling for the stream
             error: (error) => {
               console.error('Stream error:', error);
             },
           });
 
-          // Cleanup function to unsubscribe from the stream
-          // This prevents memory leaks when component unmounts
-          return () => {
-            subscription.unsubscribe();
-            initializedRef.current = false;
-          };
+          // Send initial topic message
+          const { errors } = await newChat.sendMessage(`I am trying to learn about ${currentTopic} in ${currentSubject}. I know nothing about it.`);
+          if (errors) {
+            console.error('Topic message errors:', errors);
+          }
+          
+          initializedRef.current = true;
+          return () => subscription.unsubscribe();
         }
       } catch (error) {
-        // Handle any errors during chat initialization
         console.error('Failed to create chat:', error);
-        initializedRef.current = false;
       }
     };
 
-    // Execute the initialization function
     initializeChat();
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, [isAuthenticated, currentTopic, currentSubject]);
+
+  const handleTopicChange = async (topic: string, subject: string) => {
+    setCurrentTopic(topic);
+    setCurrentSubject(subject);
+    setShowTopicSelector(false);
+    
+    // Clear existing messages and restart chat
+    setMessages([]);
+    initializedRef.current = false;
+    setChat(null);
+    
+    // Re-initialize will happen in useEffect
+  };
 
   const handleSendMessage = async () => {
-    if (inputValue.trim() && chat) {
-      const newMessage: Message = {
-        id: messages.length + 1,
-        sender: 'Sarah',
-        content: inputValue,
-        isUser: true
-      };
-      // Update the UI immediately with the user's message
-      // Using functional update pattern to ensure we're working with the latest state
-      // This creates a new array with all previous messages plus the new one
-      setMessages(prev => [...prev, newMessage]);
-      
-      try {
-        // Send the message to the AI through the Amplify chat service
-        // This is an async operation that communicates with the backend
-        const { errors } = await chat.sendMessage(inputValue);
-        if (errors) {
-          console.error('Message send errors:', errors);
-        }
-        // Note: The AI's response will be handled by the stream subscription
-        // we set up in the useEffect hook
-      } catch (error) {
-        // Handle any errors that occur during message sending
-        // This could be network errors, authentication issues, etc.
-        console.error('Failed to send message:', error);
+    if (!inputValue.trim() || !chat || isLoading) return;
+    
+    const newMessage: Message = {
+      id: messages.length + 1,
+      sender: 'You',
+      content: inputValue,
+      isUser: true
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+    setIsLoading(true);
+    
+    try {
+      const { errors } = await chat.sendMessage(inputValue);
+      if (errors) {
+        console.error('Message send errors:', errors);
       }
-      
-      // Clear the input field after sending
-      setInputValue('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsLoading(false);
+    }
+    
+    setInputValue('');
+  };
+
+  const handleSignIn = async () => {
+    try {
+      await signIn({ username: 'test@example.com', password: 'password123' });
+    } catch (error) {
+      console.error('Sign in error:', error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setIsAuthenticated(false);
+      setUser(null);
+      setChat(null);
+      setMessages([]);
+      initializedRef.current = false;
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
+  const handleNewDuck = () => {
+    setShowTopicSelector(true);
+  };
+
+  const handleAnalyzeTranscript = async () => {
+    if (messages.length === 0) return;
+    
+    try {
+      const transcript = JSON.stringify({
+        session_id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        topic: currentTopic,
+        subject: currentSubject,
+        transcript: messages.map(msg => ({
+          id: msg.id,
+          sender: msg.sender,
+          content: msg.content,
+          isUser: msg.isUser
+        }))
+      });
+
+      const { data: analysis } = await client.generations.analyzeTranscript({
+        transcript
+      });
+
+      console.log('Analysis result:', analysis);
+      // You can display this analysis in the StatPanel or as a modal
+    } catch (error) {
+      console.error('Analysis error:', error);
     }
   };
 
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
-      <div className="layout-container flex h-full grow flex-col">
-        <Header />
-        <div className="gap-6 px-12 flex flex-1 justify-center py-8">
-          <ChatInterface
-            messages={messages}
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            onSendMessage={handleSendMessage}
-          />
-          <Sidebar messages={messages} />
+      <Layout
+        isAuthenticated={isAuthenticated}
+        user={user}
+        onSignIn={handleSignIn}
+        onSignOut={handleSignOut}
+        onNewDuck={handleNewDuck}
+      >
+        <div className="w-full h-full flex flex-col">
+          {!isAuthenticated ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-4">Welcome to Darwin the Duck</h2>
+                <p className="mb-6 text-gray-600">Please sign in to start learning</p>
+                <button
+                  onClick={handleSignIn}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Sign In
+                </button>
+              </div>
+            </div>
+          ) : showTopicSelector ? (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <TopicSelector onTopicChange={(_prompt, topic, subject) => handleTopicChange(topic, subject)} />
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="font-semibold" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '1.1rem', letterSpacing: 'normal' }}>
+                  Learning: {currentTopic} in {currentSubject}
+                </h2>
+              </div>
+              <ChatInterface
+                messages={messages}
+                inputValue={inputValue}
+                onInputChange={setInputValue}
+                onSendMessage={handleSendMessage}
+              />
+            </div>
+          )}
         </div>
-      </div>
+      </Layout>
     </div>
   );
 }

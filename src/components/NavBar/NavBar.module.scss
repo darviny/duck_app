@@ -1,0 +1,234 @@
+.navBar {
+  width: 100%;
+  position: fixed;
+  height: 1080px;
+  text-align: center;
+  font-size: 32px;
+  color: #000;
+  font-family: Tiny5;
+  z-index: 9999;
+}
+
+.navBarBg {
+  position: fixed;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  background-color: #272727;
+  width: 327px;
+}
+
+.logoContainer {
+  position: absolute;
+  top: 28.87px;
+  left: 12.25px;
+  z-index: 2;
+}
+
+.logoIcon {
+  width: 273.1px;
+  height: 167.4px;
+  object-fit: cover;
+}
+
+.signInContainer {
+  position: fixed;
+  bottom: 51px;
+  left: 49.16px;
+  z-index: 2;
+}
+
+.signInButton {
+  border-radius: 4px;
+  background-color: #f6f6e9;
+  border: 2px solid #ccdfd1;
+  box-sizing: border-box;
+  width: 232.7px;
+  height: 48px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 61px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: inherit;
+
+  &:hover {
+    background-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.signInText {
+  position: relative;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.navigationLinks {
+  position: absolute;
+  top: 218px;
+  left: 80.25px;
+  width: 211px;
+  height: 209px;
+  text-align: right;
+  font-size: 36px;
+  color: #fff;
+  z-index: 2;
+}
+
+.linksContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 15px;
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 36px;
+  transition: all 0.2s ease;
+  padding: 5px;
+  border-radius: 4px;
+
+  &:hover {
+    color: var(--primary);
+    transform: translateX(-5px);
+  }
+
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.navIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.navText {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+// Specific icon positioning to match original design exactly
+.navItem:nth-child(1) .navIcon {
+  width: 30.1px;
+  height: 29px;
+}
+
+.navItem:nth-child(2) .navIcon {
+  width: 31.8px;
+  height: 34.3px;
+}
+
+.navItem:nth-child(3) .navIcon {
+  width: 34.9px;
+  height: 26.2px;
+}
+
+.navItem:nth-child(4) .navIcon {
+  width: 25px;
+  height: 25px;
+}
+
+.navBarContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.componentName {
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--text-white);
+}
+
+.placeholder {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.userSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.userInfo {
+  text-align: center;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  word-break: break-word;
+  max-width: 200px;
+}
+
+.signOutButton {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #b91c1c;
+  }
+
+  &:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}
+
+.signOutText {
+  font-family: 'Inter', sans-serif;
+} 
