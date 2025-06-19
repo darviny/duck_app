@@ -222,10 +222,15 @@ function App() {
             </div>
           ) : (
             <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="font-semibold" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '1.1rem', letterSpacing: 'normal' }}>
-                  Learning: {currentTopic} in {currentSubject}
-                </h2>
+              <div className="flex justify-center items-center p-6 border-b border-gray-200">
+                <div className="space-y-1 text-center">
+                  <h2 className="text-gray-600 font-medium" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', letterSpacing: '0.05em' }}>
+                    Current Topic:
+                  </h2>
+                  <h3 className="text-gray-900 font-semibold" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '1.3rem', letterSpacing: 'normal' }}>
+                    {currentTopic}
+                  </h3>
+                </div>
               </div>
               <ChatInterface
                 messages={messages}

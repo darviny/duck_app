@@ -33,7 +33,7 @@ const InputBox: React.FC<InputBoxProps> = ({
         <div className="flex w-full items-stretch rounded-lg">
           <textarea
             ref={textareaRef}
-            placeholder="Explain the concept to Ducky"
+            placeholder="Explain the concept to Darwin the Duck"
             className="form-textarea flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#000000] focus:outline-0 focus:ring-0 border-2 border-[#000000] bg-[#f6f6e9] focus:border-[#000000] placeholder:text-[#888888] px-4 py-3 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal min-h-[96px] max-h-[150px]"
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
