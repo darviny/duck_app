@@ -56,12 +56,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #e0e0e0;
+  background-color: #f6f6e9;
   border-radius: 15px;
-  border: 2px solid #ccc;
+  border: 2px solid #000;
   z-index: 20;
   pointer-events: auto;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 180px);
 }
 
 .statPanelContainer {
@@ -76,9 +76,7 @@
   align-items: flex-start;
   justify-content: center;
   background: #f6f6e9;
-  border: 2px solid #000;
   border-radius: 15px;
-  padding: 20px;
 }
 
 .statPanelContainer > div,
@@ -96,7 +94,8 @@
   height: 80% !important;
   min-width: 0;
   min-height: 0;
-  border: none !important;
+  border: 2px solid #000 !important;
+  border-radius: 15px;
 }
 
 .todoListContainer {

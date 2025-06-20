@@ -13,6 +13,7 @@ import PixelatePass from './post-processing/PixelatePass';
 
 import { Vector2 } from 'three';
 import { DuckStates } from './ThreeJSModules/enums';
+import HelloWorldPass from './post-processing/HelloWorldPass.js';
 
 export interface WebGLComponentProps {
     nextState?: DuckStates;
@@ -36,20 +37,14 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
 
     // Calculate reactive position for progress bars
     const updateProgressPosition = useCallback(() => {
-        const container = refContainer.current;
-        if (!container) return;
-
-        const containerRect = container.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-        
-        // Calculate responsive positioning - bottom placement
-        const bottom = Math.max(1, 0);
-        const top = containerRect.height - bottom - 100; // 120px for 3 progress bars + gaps
-        const left = Math.max(20, containerRect.width * 0.05);
-        const right = Math.max(20, containerRect.width * 0.05);
-        
-        setProgressPosition({ top, left, right });
+        if (refContainer.current) {
+            const rect = refContainer.current.getBoundingClientRect();
+            setProgressPosition({
+                top: rect.height - 60,
+                left: 20,
+                right: 20
+            });
+        }
     }, []);
 
     // Update position on mount and resize
@@ -150,6 +145,8 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
         const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
         composer.addPass(bloomPass);
         const pixelatePass = new PixelatePass(renderResolution);
+        const helloWorldPass = new HelloWorldPass();
+        composer.addPass(helloWorldPass);
         composer.addPass(pixelatePass);
 
         // Controls

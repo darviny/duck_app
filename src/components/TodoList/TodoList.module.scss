@@ -9,18 +9,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .todoListContent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: 100%;
   text-align: center;
   width: 100%;
+  gap: 12px;
 }
 
 .componentName {
@@ -38,6 +40,81 @@
   margin-bottom: 1rem;
 }
 
+.evaluationResults {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+.overallComment,
+.suggestionsSection,
+.evidenceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #000;
+  margin: 0;
+  text-align: left;
+}
+
+.summaryPhrase {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #000;
+  line-height: 1.3;
+  margin: 0;
+  text-align: left;
+  padding: 8px 12px;
+  background-color: rgba(39, 39, 39, 0.1);
+  border-left: 3px solid #272727;
+  border-radius: 4px;
+}
+
+.commentText {
+  font-size: 0.8rem;
+  color: #333;
+  line-height: 1.4;
+  margin: 0;
+  text-align: left;
+}
+
+.bulletList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulletItem {
+  font-size: 0.8rem;
+  color: #333;
+  line-height: 1.4;
+  text-align: left;
+  position: relative;
+  padding-left: 16px;
+  
+  &::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+}
+
 .evaluateButton {
   background-color: #272727;
   color: white;
@@ -48,6 +125,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  margin-top: auto;
   
   &:hover:not(:disabled) {
     background-color: #000000;

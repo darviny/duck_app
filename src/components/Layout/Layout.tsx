@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LayoutProps as OriginalLayoutProps } from '../../types/components';
 import NavBar from '../NavBar/NavBar';
 import ToolBar from '../ToolBar/ToolBar';
-import StatPanel from '../StatPanel/StatPanel';
-import TodoList from '../TodoList/TodoList';
 import { WebGLComponent } from '../web-gl-component/web-gl-component';
+import TodoList from '../TodoList/TodoList';
 import { PopUpModalComponent } from '../pop-up-modal-component/pop-up-modal-component';
 import styles from './Layout.module.scss';
 
@@ -26,10 +25,12 @@ export interface LayoutProps extends Omit<OriginalLayoutProps, 'children'> {
   };
   onEvaluate?: () => void;
   isEvaluating?: boolean;
+  useNewChatStyle?: boolean;
+  onToggleChatStyle?: () => void;
 }
 
-const AUTOHIDE_DELAY = 1500; // ms
-const EDGE_TRIGGER_WIDTH = 32; // px
+const AUTOHIDE_DELAY = 1000; // ms
+const EDGE_TRIGGER_WIDTH = 64; // px
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
@@ -42,7 +43,9 @@ const Layout: React.FC<LayoutProps> = ({
   onNewDuck,
   aiEvaluation,
   onEvaluate,
-  isEvaluating
+  isEvaluating,
+  useNewChatStyle,
+  onToggleChatStyle
 }) => {
   // State for Help modal
   const [showHelp, setShowHelp] = useState(false);
@@ -162,14 +165,12 @@ const Layout: React.FC<LayoutProps> = ({
         <NavBar
           isAuthenticated={isAuthenticated}
           user={user}
-          isVisible={navBarVisible}
           onSignIn={handleSignIn}
           onSignOut={onSignOut}
           onNewDuck={handleNewDuck}
           onCourses={handleCourses}
           onStudyPlan={handleStudyPlan}
           onSettings={handleSettings}
-          onToggleVisibility={() => setNavBarVisible(true)}
         />
       </div>
       
@@ -181,10 +182,15 @@ const Layout: React.FC<LayoutProps> = ({
           onPause={handlePause}
           onStop={handleStop}
           showPlaybackControls={false}
+          useNewChatStyle={useNewChatStyle}
+          onToggleChatStyle={onToggleChatStyle}
         />
       </div>
       
-      <div className={styles.mainContent}>
+      <div className={styles.mainContent} style={{
+        backgroundColor: useNewChatStyle ? '#f6f6e9' : '#e0e0e0',
+        border: useNewChatStyle ? '2px solid #000' : '2px solid #ccc'
+      }}>
         {children}
       </div>
       
@@ -199,6 +205,7 @@ const Layout: React.FC<LayoutProps> = ({
         <TodoList 
           onEvaluate={onEvaluate}
           isEvaluating={isEvaluating}
+          aiEvaluation={aiEvaluation}
         />
       </div>
       {/* Help Modal */}

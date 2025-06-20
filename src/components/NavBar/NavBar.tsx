@@ -11,27 +11,23 @@ import {
 interface NavBarProps {
   isAuthenticated?: boolean;
   user?: any;
-  isVisible?: boolean;
   onSignIn?: () => void;
   onSignOut?: () => void;
   onNewDuck?: () => void;
   onCourses?: () => void;
   onStudyPlan?: () => void;
   onSettings?: () => void;
-  onToggleVisibility?: () => void;
 }
 
 const NavBar: React.FC<NavBarProps> = ({
   isAuthenticated = false,
   user,
-  isVisible = true,
   onSignIn,
   onSignOut,
   onNewDuck,
   onCourses,
   onStudyPlan,
-  onSettings,
-  onToggleVisibility
+  onSettings
 }) => {
   return (
     <nav className={styles.navBar} role="navigation" aria-label="Main navigation">

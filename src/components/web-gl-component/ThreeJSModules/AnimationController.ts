@@ -33,8 +33,14 @@ export default class AnimationController {
 
         this.nextAction = DuckStates.IDLE;
 
-        // GUI
+        // GUI - Position at top center
         this.gui = new GUI();
+        this.gui.domElement.style.position = 'absolute';
+        this.gui.domElement.style.top = '20px';
+        this.gui.domElement.style.left = '50%';
+        this.gui.domElement.style.transform = 'translateX(-50%)';
+        this.gui.domElement.style.zIndex = '1000';
+        
         const duckStates = this.gui.addFolder('Duck States');
 
         duckStates.add(this, 'nextAction', {

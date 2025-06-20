@@ -15,6 +15,8 @@ interface ToolBarProps {
   onPause?: () => void;
   onStop?: () => void;
   showPlaybackControls?: boolean;
+  useNewChatStyle?: boolean;
+  onToggleChatStyle?: () => void;
 }
 
 const ToolBar: React.FC<ToolBarProps> = ({
@@ -23,7 +25,9 @@ const ToolBar: React.FC<ToolBarProps> = ({
   onPlay,
   onPause,
   onStop,
-  showPlaybackControls = false
+  showPlaybackControls = false,
+  useNewChatStyle = false,
+  onToggleChatStyle
 }) => {
   return (
     <header className={styles.toolBar} role="banner" aria-label="Tool bar">
@@ -92,6 +96,25 @@ const ToolBar: React.FC<ToolBarProps> = ({
                 className={styles.controlIcon}
               />
             </button>
+            {onToggleChatStyle && (
+              <button
+                className={styles.chatStyleToggle}
+                onClick={onToggleChatStyle}
+                aria-label="Toggle chat style"
+                style={{
+                  background: useNewChatStyle ? '#272727' : '#f6f6e9',
+                  color: useNewChatStyle ? '#ffffff' : '#000000',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  marginLeft: '10px'
+                }}
+              >
+                Toggle
+              </button>
+            )}
           </div>
         </div>
       </div>

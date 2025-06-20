@@ -30,6 +30,7 @@ export default class HelloWorldPass extends Pass {
     }
 
     material() {
+        // fragment shader modifiers
         return new THREE.ShaderMaterial( {
             uniforms: {
                 tDiffuse: { value: null }
@@ -45,7 +46,7 @@ export default class HelloWorldPass extends Pass {
                 varying vec2 vUv;
                 void main() {
                     vec4 texel = texture2D( tDiffuse, vUv );
-                    gl_FragColor = 1.0 * texel;
+                    gl_FragColor = 5.0 * texel;
                 }`
         } )
     }

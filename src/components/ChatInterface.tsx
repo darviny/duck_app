@@ -14,6 +14,7 @@ interface ChatInterfaceProps {
   inputValue: string;
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
+  useNewStyle?: boolean;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -21,6 +22,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   inputValue,
   onInputChange,
   onSendMessage,
+  useNewStyle = false,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto max-h-[calc(100vh-380px)] min-h-[200px]"
+        className="flex-1 overflow-y-auto max-h-[calc(100vh-435px)] min-h-[200px]"
       >
         {messages.map((message) => (
           <Message
@@ -60,6 +62,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             sender={message.sender}
             content={message.content}
             isUser={message.isUser}
+            useNewStyle={useNewStyle}
           />
         ))}
       </div>
@@ -68,6 +71,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         onInputChange={onInputChange}
         onSendMessage={onSendMessage}
         onKeyPress={handleKeyPress}
+        useNewStyle={useNewStyle}
       />
     </div>
   );

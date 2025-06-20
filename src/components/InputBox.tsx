@@ -5,6 +5,7 @@ interface InputBoxProps {
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
+  useNewStyle?: boolean;
 }
 
 const InputBox: React.FC<InputBoxProps> = ({
@@ -12,6 +13,7 @@ const InputBox: React.FC<InputBoxProps> = ({
   onInputChange,
   onSendMessage,
   onKeyPress,
+  useNewStyle = false,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,13 +36,17 @@ const InputBox: React.FC<InputBoxProps> = ({
           <textarea
             ref={textareaRef}
             placeholder="Explain the concept to Darwin the Duck"
-            className="form-textarea flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#000000] focus:outline-0 focus:ring-0 border-2 border-[#000000] bg-[#f6f6e9] focus:border-[#000000] placeholder:text-[#888888] px-4 py-3 rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal min-h-[96px] max-h-[150px]"
+            className={`flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#000000] focus:outline-0 focus:ring-0 border-0 placeholder:text-[#888888] px-4 py-3 rounded-r-none pr-2 text-base font-normal leading-normal min-h-[96px] max-h-[150px] ${
+              useNewStyle ? 'bg-[#e0e0e0]' : 'bg-[#f6f6e9]'
+            }`}
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyPress={onKeyPress}
             rows={1}
           />
-          <div className="flex border-2 border-l-0 border-[#000000] bg-[#f6f6e9] items-center justify-center pr-4 rounded-r-lg !pr-2">
+          <div className={`flex items-center justify-center pr-4 rounded-r-lg !pr-2 ${
+            useNewStyle ? 'bg-[#e0e0e0]' : 'bg-[#f6f6e9]'
+          }`}>
             <div className="flex items-center gap-4 justify-end">
               <button
                 className="min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#272727] text-[#ffffff] text-sm font-semibold leading-normal hidden @[480px]:block hover:bg-[#000000] transition-colors"

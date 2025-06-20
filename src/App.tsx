@@ -37,6 +37,7 @@ function App() {
   const [user, setUser] = useState<any>(null);
   const [showTopicSelector, setShowTopicSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [useNewChatStyle, setUseNewChatStyle] = useState(false);
   const [aiEvaluation, setAiEvaluation] = useState<AIEvaluationData>({
     clarity: 0,
     accuracy: 0,
@@ -209,6 +210,10 @@ function App() {
     setShowTopicSelector(true);
   };
 
+  const handleToggleChatStyle = () => {
+    setUseNewChatStyle(!useNewChatStyle);
+  };
+
   const handleEvaluate = async () => {
     if (messages.length === 0) {
       console.log('No messages to evaluate');
@@ -252,6 +257,8 @@ function App() {
         aiEvaluation={aiEvaluation}
         onEvaluate={handleEvaluate}
         isEvaluating={aiLoading}
+        useNewChatStyle={useNewChatStyle}
+        onToggleChatStyle={handleToggleChatStyle}
       >
         <div className="w-full h-full flex flex-col">
           {!isAuthenticated ? (
@@ -288,6 +295,7 @@ function App() {
                 inputValue={inputValue}
                 onInputChange={setInputValue}
                 onSendMessage={handleSendMessage}
+                useNewStyle={useNewChatStyle}
               />
             </div>
           )}

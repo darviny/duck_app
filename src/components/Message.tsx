@@ -5,9 +5,10 @@ interface MessageProps {
   sender: string;
   content: string;
   isUser: boolean;
+  useNewStyle?: boolean;
 }
 
-const Message: React.FC<MessageProps> = ({ sender, content, isUser }) => {
+const Message: React.FC<MessageProps> = ({ sender, content, isUser, useNewStyle = false }) => {
   return (
     <div className={`flex items-end gap-3 p-4 ${isUser ? 'justify-end' : ''}`}>
       {!isUser && (
@@ -21,7 +22,9 @@ const Message: React.FC<MessageProps> = ({ sender, content, isUser }) => {
           {sender}
         </p>
         <p className={`text-sm font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 text-left ${
-          isUser ? 'bg-[#272727] text-[#ffffff]' : 'bg-[#f6f6e9] text-[#000000] border-2 border-[#000000]'
+          isUser ? 'bg-[#272727] text-[#ffffff]' : 
+          useNewStyle ? 'bg-[#e0e0e0] text-[#000000] border-2 border-[#000000]' : 
+          'bg-[#f6f6e9] text-[#000000] border-2 border-[#000000]'
         }`}>
           {content}
         </p>
