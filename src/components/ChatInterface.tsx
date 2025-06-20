@@ -9,12 +9,22 @@ interface Message {
   isUser: boolean;
 }
 
+interface AIEvaluationData {
+  clarity: number;
+  accuracy: number;
+  engagement: number;
+  suggestions: string[];
+  evidence: string[];
+  overall_comment: string;
+}
+
 interface ChatInterfaceProps {
   messages: Message[];
   inputValue: string;
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
   useNewStyle?: boolean;
+  aiEvaluation?: AIEvaluationData;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -23,6 +33,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onInputChange,
   onSendMessage,
   useNewStyle = false,
+  aiEvaluation,
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +74,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             content={message.content}
             isUser={message.isUser}
             useNewStyle={useNewStyle}
+            aiEvaluation={aiEvaluation}
           />
         ))}
       </div>

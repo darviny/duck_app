@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface MessageProps {
   id: number;
@@ -6,9 +7,51 @@ interface MessageProps {
   content: string;
   isUser: boolean;
   useNewStyle?: boolean;
+  aiEvaluation?: {
+    clarity: number;
+    accuracy: number;
+    engagement: number;
+    suggestions: string[];
+    evidence: string[];
+    overall_comment: string;
+  };
 }
 
-const Message: React.FC<MessageProps> = ({ sender, content, isUser, useNewStyle = false }) => {
+const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewStyle = false, aiEvaluation }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const messageRef = useRef<HTMLParagraphElement>(null);
+
+  const handleMouseEnter = () => {
+    if (isUser && messageRef.current) {
+      const rect = messageRef.current.getBoundingClientRect();
+      setTooltipPosition({
+        top: rect.top - 10, // Position above the message
+        left: rect.left
+      });
+      setShowTooltip(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
+  // Find evidence related to this message
+  const getMessageEvidence = () => {
+    if (!aiEvaluation || !aiEvaluation.evidence || !isUser) return [];
+    
+    // Look for evidence that mentions this message's content
+    const relevantEvidence = aiEvaluation.evidence.filter(evidence => 
+      evidence.toLowerCase().includes(content.toLowerCase().substring(0, 20)) ||
+      evidence.includes(`Message ID ${id}`)
+    );
+    
+    return relevantEvidence;
+  };
+
+  const messageEvidence = getMessageEvidence();
+
   return (
     <div className={`flex items-end gap-3 p-4 ${isUser ? 'justify-end' : ''}`}>
       {!isUser && (
@@ -21,19 +64,84 @@ const Message: React.FC<MessageProps> = ({ sender, content, isUser, useNewStyle 
         <p className={`text-[#000000] text-[16px] font-semibold leading-normal max-w-[600px] font-['Tiny5'] ${isUser ? 'text-right' : ''}`}>
           {sender}
         </p>
-        <p className={`text-sm font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 text-left ${
-          isUser ? 'bg-[#272727] text-[#ffffff]' : 
-          useNewStyle ? 'bg-[#e0e0e0] text-[#000000] border-2 border-[#000000]' : 
-          'bg-[#f6f6e9] text-[#000000] border-2 border-[#000000]'
-        }`}>
-          {content}
-        </p>
+        <div className="relative">
+          <p 
+            ref={messageRef}
+            className={`text-sm font-normal leading-normal flex max-w-[600px] rounded-lg px-4 py-3 text-left cursor-pointer transition-all duration-200 ${
+              isUser ? 'bg-[#272727] text-[#ffffff] hover:bg-[#1a1a1a]' : 
+              useNewStyle ? 'bg-[#e0e0e0] text-[#000000] border-2 border-[#000000]' : 
+              'bg-[#f6f6e9] text-[#000000] border-2 border-[#000000]'
+            }`}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {content}
+          </p>
+        </div>
       </div>
       {isUser && (
         <div
           className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 shrink-0"
           style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBvYWX4RlWqXBATtjxxdLWUSgE0lx-o1RdYrt3c1NYjDUhXLsy5F8r3XJxTJa4Zd8dmQkERMZC3F1CbD6oe52uYYdQcCxYYURuQCyQBVn5Bfjf8W6qAXq77iYrAyRsFp3a-s5ZSVZeuFGmKhNaLbaWTt7zmI9mMDiS8k16w8WgMNrAwqM2-Dpi4xc02aTN5mn0wMbOoeTJIp7rItwRFaizlgzz6Am-yxD7OxndcBhPzWl-fxjvzj6urlexWcUZwr5wzeJFfS1fZQB0")' }}
         ></div>
+      )}
+      
+      {/* Portal-based Tooltip */}
+      {showTooltip && isUser && createPortal(
+        <div 
+          className="fixed px-3 py-2 bg-[#000000] text-[#ffffff] text-xs rounded-lg shadow-lg z-[9999] w-64"
+          style={{
+            top: tooltipPosition.top,
+            left: tooltipPosition.left,
+            transform: 'translateY(-100%)'
+          }}
+        >
+          {messageEvidence.length > 0 && (
+            <div className="space-y-1">
+              {messageEvidence.map((evidence, index) => {
+                console.log('Original evidence:', evidence);
+                
+                // Extract reasoning from formats like:
+                // "Clarity - Message ID 2: 'hi' - The learner's response..."
+                // "Message ID 2: 'hi' - The learner's response..."
+                let reasoning = '';
+                
+                // Look for the last dash in the string and take everything after it
+                const lastDashIndex = evidence.lastIndexOf(' - ');
+                if (lastDashIndex !== -1) {
+                  reasoning = evidence.substring(lastDashIndex + 3).trim(); // +3 to skip " - "
+                  console.log('Found reasoning with last dash pattern:', reasoning);
+                } else {
+                  // Fallback: try to get everything after the first "-" (without space)
+                  const parts = evidence.split('-');
+                  if (parts.length > 1) {
+                    reasoning = parts.slice(1).join('-').trim();
+                    console.log('Fallback reasoning:', reasoning);
+                  } else {
+                    reasoning = evidence;
+                    console.log('Using original evidence:', reasoning);
+                  }
+                }
+                
+                return (
+                  <div key={index} className="flex items-start gap-2">
+                    <span className="text-[#ffffff] font-bold mt-0.5">•</span>
+                    <span className="text-[11px] leading-tight flex-1 text-left">
+                      {reasoning.length > 120 
+                        ? `${reasoning.substring(0, 120)}...` 
+                        : reasoning
+                      }
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Tooltip arrow */}
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#000000]"></div>
+        </div>,
+        document.body
       )}
     </div>
   );

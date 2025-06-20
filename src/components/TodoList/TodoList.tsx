@@ -53,11 +53,15 @@ const TodoList: React.FC<ExtendedTodoListProps> = ({
               <div className={styles.suggestionsSection}>
                 <h4 className={styles.sectionTitle}>Suggestions for Improvement</h4>
                 <ul className={styles.bulletList}>
-                  {aiEvaluation.suggestions.map((suggestion, index) => (
-                    <li key={index} className={styles.bulletItem}>
-                      {suggestion}
-                    </li>
-                  ))}
+                  {aiEvaluation.suggestions.map((suggestion, index) => {
+                    // Extract only the first sentence
+                    const firstSentence = suggestion.split('.')[0] + '.';
+                    return (
+                      <li key={index} className={styles.bulletItem}>
+                        <span className={styles.suggestionText}>{firstSentence}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

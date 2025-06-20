@@ -10,6 +10,33 @@
   z-index: 10;
   background: #eee;
   border: 2px solid #000;
+  
+  // Fullscreen styles
+  &:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    background: #000;
+  }
+  
+  // Webkit fullscreen support
+  &:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    background: #000;
+  }
+  
+  // Mozilla fullscreen support
+  &:-moz-full-screen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    background: #000;
+  }
 }
 
 canvas {
@@ -17,6 +44,19 @@ canvas {
     height: 100% !important;
     display: block;
     border-radius: inherit;
+    
+    // Fullscreen canvas styles
+    .webglcomponent:fullscreen & {
+      border-radius: 0;
+    }
+    
+    .webglcomponent:-webkit-full-screen & {
+      border-radius: 0;
+    }
+    
+    .webglcomponent:-moz-full-screen & {
+      border-radius: 0;
+    }
 }
 
 .progressOverlay {

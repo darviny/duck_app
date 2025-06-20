@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../amplify/data/resource';
 import { getCurrentUser, signIn, signOut, fetchUserAttributes } from 'aws-amplify/auth';
@@ -48,8 +48,41 @@ function App() {
   });
   const initializedRef = useRef(false);
   const accumulatedTextRef = useRef('');
+  const shouldEvaluateRef = useRef(false);
 
   const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+
+  const handleEvaluateWithMessages = useCallback(async (messagesToEvaluate: Message[]) => {
+    if (messagesToEvaluate.length === 0) {
+      console.log('No messages to evaluate');
+      return;
+    }
+    
+    console.log('Starting AI evaluation with provided messages...');
+    console.log('Messages to evaluate:', messagesToEvaluate);
+    
+    const transcript = JSON.stringify({
+      session_id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      topic: currentTopic,
+      subject: currentSubject,
+      transcript: messagesToEvaluate.map(msg => ({
+        id: msg.id,
+        sender: msg.sender,
+        content: msg.content,
+        isUser: msg.isUser
+      }))
+    });
+
+    console.log('Transcript being analyzed:', transcript);
+    
+    try {
+      const result = await analyzeTranscript({ transcript });
+      console.log('Analyze transcript result:', result);
+    } catch (error) {
+      console.error('Error calling analyzeTranscript:', error);
+    }
+  }, [currentTopic, currentSubject, analyzeTranscript]);
 
   // Check authentication status
   useEffect(() => {
@@ -105,20 +138,43 @@ function App() {
           
           const subscription = newChat.onStreamEvent({
             next: (event) => {
+              console.log('Stream event received:', event);
               if (event.text) {
                 accumulatedTextRef.current += event.text;
+                console.log('Accumulated text so far:', accumulatedTextRef.current);
               }
               
               if ('stopReason' in event) {
                 const completeMessage = accumulatedTextRef.current;
                 console.log('Stream complete, final message:', completeMessage);
+                console.log('Stop reason:', event.stopReason);
+                console.log('Message length:', completeMessage.length);
+                console.log('Message trimmed length:', completeMessage.trim().length);
                 
-                setMessages(prev => [...prev, {
-                  id: prev.length + 1,
-                  sender: 'Darwin the Duck',
-                  content: completeMessage,
-                  isUser: false
-                }]);
+                // Only add the message if it's not empty
+                if (completeMessage.trim()) {
+                  setMessages(prev => {
+                    const updatedMessages = [...prev, {
+                      id: prev.length + 1,
+                      sender: 'Darwin the Duck',
+                      content: completeMessage,
+                      isUser: false
+                    }];
+                    
+                    // Only evaluate if this was triggered by a user message
+                    if (shouldEvaluateRef.current) {
+                      setTimeout(async () => {
+                        console.log('Auto-evaluating after AI response...');
+                        handleEvaluateWithMessages(updatedMessages);
+                      }, 1000);
+                      shouldEvaluateRef.current = false; // Reset the flag
+                    }
+                    
+                    return updatedMessages;
+                  });
+                } else {
+                  console.log('Empty AI response received, not adding to chat');
+                }
                 
                 accumulatedTextRef.current = '';
               }
@@ -134,6 +190,8 @@ function App() {
             console.error('Topic message errors:', errors);
           }
           
+          console.log('Initial topic message sent, waiting for response...');
+          
           initializedRef.current = true;
           return () => subscription.unsubscribe();
         }
@@ -143,7 +201,7 @@ function App() {
     };
 
     initializeChat();
-  }, [isAuthenticated, currentTopic, currentSubject]);
+  }, [isAuthenticated, currentTopic, currentSubject, handleEvaluateWithMessages]);
 
   const handleTopicChange = async (topic: string, subject: string) => {
     setCurrentTopic(topic);
@@ -154,6 +212,7 @@ function App() {
     setMessages([]);
     initializedRef.current = false;
     setChat(null);
+    shouldEvaluateRef.current = false; // Reset evaluation flag
     
     // Re-initialize will happen in useEffect
   };
@@ -170,6 +229,9 @@ function App() {
     
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
+    
+    // Set flag to evaluate after AI response
+    shouldEvaluateRef.current = true;
     
     try {
       const { errors } = await chat.sendMessage(inputValue);
@@ -296,6 +358,7 @@ function App() {
                 onInputChange={setInputValue}
                 onSendMessage={handleSendMessage}
                 useNewStyle={useNewChatStyle}
+                aiEvaluation={aiEvaluation}
               />
             </div>
           )}

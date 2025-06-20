@@ -46,7 +46,7 @@ export default class HelloWorldPass extends Pass {
                 varying vec2 vUv;
                 void main() {
                     vec4 texel = texture2D( tDiffuse, vUv );
-                    gl_FragColor = 5.0 * texel;
+                    gl_FragColor = 0.75 * texel;
                 }`
         } )
     }

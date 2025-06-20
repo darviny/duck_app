@@ -1,7 +1,7 @@
 import styles from './web-gl-component.module.scss';
 // import cx from 'classnames';
 import * as THREE from 'three';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, forwardRef } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Game from './ThreeJSModules/Game.js';
 
@@ -28,8 +28,7 @@ export interface WebGLComponentProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps) => {
-    const refContainer = useRef<HTMLDivElement>(null);
+export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({ nextState, aiEvaluation }, ref) => {
     const [progress1, setProgress1] = useState(0);
     const [progress2, setProgress2] = useState(0);
     const [progress3, setProgress3] = useState(0);
@@ -37,15 +36,16 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
 
     // Calculate reactive position for progress bars
     const updateProgressPosition = useCallback(() => {
-        if (refContainer.current) {
-            const rect = refContainer.current.getBoundingClientRect();
+        const container = (ref as React.RefObject<HTMLDivElement>)?.current;
+        if (container) {
+            const rect = container.getBoundingClientRect();
             setProgressPosition({
-                top: rect.height - 60,
+                top: rect.height - 90,
                 left: 20,
                 right: 20
             });
         }
-    }, []);
+    }, [ref]);
 
     // Update position on mount and resize
     useEffect(() => {
@@ -117,7 +117,7 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
     }, [aiEvaluation]);
 
     useEffect(() => {
-        const container = refContainer.current;
+        const container = (ref as React.RefObject<HTMLDivElement>)?.current;
         if (!container) return;
 
         const screenResolution = new Vector2(container.clientWidth, container.clientHeight);
@@ -146,7 +146,7 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
         composer.addPass(bloomPass);
         const pixelatePass = new PixelatePass(renderResolution);
         const helloWorldPass = new HelloWorldPass();
-        composer.addPass(helloWorldPass);
+        // composer.addPass(helloWorldPass);
         composer.addPass(pixelatePass);
 
         // Controls
@@ -160,9 +160,9 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
         controls.target.set(0, 1.5, 0);
 
         // Camera
-        camera.position.set(-7, 3, 7);
+        camera.position.set(-7, 0, 7);
         camera.lookAt(controls.target);
-        camera.setFocalLength(65);
+        camera.setFocalLength(70);
 
         const handleResize = () => {
             if (!container) return;
@@ -240,7 +240,7 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
     }, [nextState]);
 
     return (
-        <div ref={refContainer} className={styles.webglcomponent}>
+        <div ref={ref} className={styles.webglcomponent}>
             <div 
                 className={styles.progressOverlay}
                 style={{
@@ -284,4 +284,4 @@ export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps)
             </div>
         </div>
     );
-};
+});
