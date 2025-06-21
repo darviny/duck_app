@@ -29,6 +29,19 @@ const NavBar: React.FC<NavBarProps> = ({
   onStudyPlan,
   onSettings
 }) => {
+  // Helper function to get display name
+  const getDisplayName = () => {
+    if (!user) return 'User';
+    
+    // For Amplify useAuthenticator, use signInDetails.loginId (email) as primary display
+    // Fall back to other fields if needed
+    return user.signInDetails?.loginId || 
+           user.attributes?.email || 
+           user.attributes?.name ||
+           user.username ||
+           'User';
+  };
+
   return (
     <nav className={styles.navBar} role="navigation" aria-label="Main navigation">
       {/* Background */}
@@ -129,7 +142,7 @@ const NavBar: React.FC<NavBarProps> = ({
           <div className={styles.userSection}>
             <div className={styles.userInfo}>
               <span className={styles.userName}>
-                {user?.attributes?.email || user?.username || 'User'}
+                {getDisplayName()}
               </span>
             </div>
             <button 
