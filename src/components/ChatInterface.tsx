@@ -65,12 +65,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [messages]);
 
   return (
-    <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full">
+    <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full h-full">
       <div className="flex gap-3 p-3 flex-wrap pr-4">
       </div>
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto max-h-[calc(100vh-435px)] min-h-[200px]"
+        className="flex-1 overflow-y-auto min-h-[200px]"
       >
         {messages.map((message) => (
           <Message

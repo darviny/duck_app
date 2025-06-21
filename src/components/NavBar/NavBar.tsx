@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from './NavBar.module.scss';
 import { 
   logoIcon, 
@@ -19,6 +19,9 @@ interface NavBarProps {
   onSettings?: () => void;
 }
 
+const AUTOHIDE_DELAY = 1000; // ms
+const EDGE_TRIGGER_WIDTH = 64; // px
+
 const NavBar: React.FC<NavBarProps> = ({
   isAuthenticated = false,
   user,
@@ -29,8 +32,57 @@ const NavBar: React.FC<NavBarProps> = ({
   onStudyPlan,
   onSettings
 }) => {
+  // Auto-hide state management
+  const [isVisible, setIsVisible] = useState(true);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-hide logic
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // If mouse is near the left edge, show NavBar
+      if (e.clientX <= EDGE_TRIGGER_WIDTH) {
+        setIsVisible(true);
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+        }
+      } else {
+        // Reset hide timer
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+        }
+        hideTimeoutRef.current = setTimeout(() => {
+          setIsVisible(false);
+        }, AUTOHIDE_DELAY);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, []);
+
+  // Show NavBar on hover
+  const handleMouseEnter = () => {
+    setIsVisible(true);
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+  };
+
+  const handleMouseLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, AUTOHIDE_DELAY);
+  };
+
   return (
-    <nav className={styles.navBar} role="navigation" aria-label="Main navigation">
+    <nav 
+      className={`${styles.navBar} ${isVisible ? styles.navBarVisible : styles.navBarHidden}`}
+      role="navigation" 
+      aria-label="Main navigation"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {/* Background */}
       <div className={styles.navBarBg}></div>
       

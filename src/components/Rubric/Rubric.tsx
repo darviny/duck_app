@@ -1,29 +1,18 @@
 import React from 'react';
 import { RubricProps } from '../../types/components';
+import { useAIEvaluation } from '../../contexts/AIEvaluationContext';
 import styles from './Rubric.module.scss';
 
-interface AIEvaluationData {
-  clarity: number;
-  accuracy: number;
-  engagement: number;
-  suggestions: string[];
-  evidence: string[];
-  overall_comment: string;
-}
-
 interface ExtendedRubricProps extends RubricProps {
-  onEvaluate?: () => void;
-  isEvaluating?: boolean;
-  aiEvaluation?: AIEvaluationData;
+  // Removed onEvaluate and isEvaluating props - now from context
 }
 
-const Rubric: React.FC<ExtendedRubricProps> = ({ 
-  className, 
-  id, 
-  onEvaluate, 
-  isEvaluating,
-  aiEvaluation 
+const Rubric: React.FC<ExtendedRubricProps> = ({
+  className,
+  id
 }) => {
+  const { aiEvaluation, onEvaluate, isEvaluating } = useAIEvaluation();
+
   const hasEvaluationResults = aiEvaluation && (
     aiEvaluation.suggestions.length > 0 || 
     aiEvaluation.overall_comment

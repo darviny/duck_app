@@ -11,7 +11,6 @@ import {
 
 interface ToolBarProps {
   onHelp?: () => void;
-  onFullScreen?: () => void;
   onPlay?: () => void;
   onPause?: () => void;
   onStop?: () => void;
@@ -20,11 +19,11 @@ interface ToolBarProps {
   onToggleChatStyle?: () => void;
   onToggleQuackMode?: () => void;
   quackMode?: boolean;
+  webglRef?: React.RefObject<HTMLDivElement>;
 }
 
 const ToolBar: React.FC<ToolBarProps> = ({
   onHelp,
-  onFullScreen,
   onPlay,
   onPause,
   onStop,
@@ -32,8 +31,28 @@ const ToolBar: React.FC<ToolBarProps> = ({
   useNewChatStyle = false,
   onToggleChatStyle,
   onToggleQuackMode,
-  quackMode = false
+  quackMode = false,
+  webglRef
 }) => {
+  const handleFullScreen = () => {
+    const webglElement = webglRef?.current;
+    if (!webglElement) return;
+    
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      webglElement.requestFullscreen().then(() => {
+      }).catch(err => {
+        console.error('Error entering fullscreen:', err);
+      });
+    } else {
+      // Exit fullscreen
+      document.exitFullscreen().then(() => {
+      }).catch(err => {
+        console.error('Error exiting fullscreen:', err);
+      });
+    }
+  };
+
   return (
     <header className={styles.toolBar} role="banner" aria-label="Tool bar">
       <div className={styles.toolBarBg}>
@@ -113,7 +132,7 @@ const ToolBar: React.FC<ToolBarProps> = ({
             </button>
             <button
               className={styles.arrowsOutputIcon}
-              onClick={onFullScreen}
+              onClick={handleFullScreen}
               aria-label="Full screen"
             >
               <img 

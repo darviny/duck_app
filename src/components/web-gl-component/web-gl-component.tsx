@@ -1,16 +1,13 @@
-import styles from './web-gl-component.module.scss';
-// import cx from 'classnames';
+import React, { forwardRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { useEffect, useState, useCallback, forwardRef } from 'react';
+import { useAIEvaluation } from '../../contexts/AIEvaluationContext';
+import styles from './web-gl-component.module.scss';
+import Game from './ThreeJSModules/Game';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Game from './ThreeJSModules/Game.js';
-
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-
 import PixelatePass from './post-processing/PixelatePass';
-
 import { Vector2 } from 'three';
 
 // Global reference to AnimationController for direct access
@@ -21,18 +18,13 @@ declare global {
 }
 
 export interface WebGLComponentProps {
-    aiEvaluation?: {
-        clarity: number;
-        accuracy: number;
-        engagement: number;
-        suggestions: string[];
-        evidence: string[];
-        overall_comment: string;
-    };
+    className?: string;
+    id?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({ aiEvaluation }, ref) => {
+export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>((_, ref) => {
+    const { aiEvaluation } = useAIEvaluation();
     const [progress1, setProgress1] = useState(0);
     const [progress2, setProgress2] = useState(0);
     const [progress3, setProgress3] = useState(0);
@@ -145,7 +137,6 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
         const composer = new EffectComposer(renderer);
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
-        // composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
         const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
         composer.addPass(bloomPass);
         const pixelatePass = new PixelatePass(renderResolution);

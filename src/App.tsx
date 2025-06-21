@@ -4,10 +4,16 @@ import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../amplify/data/resource';
 import { getCurrentUser, signIn, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 import { createAIHooks } from "@aws-amplify/ui-react-ai";
-import Layout from './components/Layout/Layout';
+import NavBar from './components/NavBar/NavBar';
+import ToolBar from './components/ToolBar/ToolBar';
 import ChatInterface from './components/ChatInterface';
 import TopicSelector from './components/TopicSelector';
 import { DuckStates } from './components/web-gl-component/ThreeJSModules/enums';
+import { AIEvaluationProvider } from './contexts/AIEvaluationContext';
+import styles from './App.module.scss';
+import HelpModal from './components/HelpModal';
+import { WebGLComponent } from './components/web-gl-component/web-gl-component';
+import Rubric from './components/Rubric/Rubric';
 
 // Global reference to AnimationController
 declare global {
@@ -59,8 +65,12 @@ function App() {
   const accumulatedTextRef = useRef('');
   const shouldEvaluateRef = useRef(false);
   const quackModeRef = useRef(quackMode);
+  const webglRef = useRef(null);
 
   const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+
+  // State for Help modal
+  const [showHelp, setShowHelp] = useState(false);
 
   // Update the ref whenever quackMode changes
   useEffect(() => {
@@ -392,23 +402,60 @@ function App() {
     }
   };
 
+  // ToolBar handlers
+  const handleHelp = () => setShowHelp(true);
+  const handleCloseHelp = () => setShowHelp(false);
+
   return (
-    <div className="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style={{ fontFamily: 'DM Sans, sans-serif', backgroundColor: 'var(--background)' }}>
-      <Layout
-        isAuthenticated={isAuthenticated}
-        user={user}
-        onSignIn={handleSignIn}
-        onSignOut={handleSignOut}
-        onNewDuck={handleNewDuck}
-        aiEvaluation={aiEvaluation}
-        onEvaluate={handleEvaluate}
-        isEvaluating={aiLoading}
-        useNewChatStyle={useNewChatStyle}
-        onToggleChatStyle={handleToggleChatStyle}
-        onToggleQuackMode={handleToggleQuackMode}
-        quackMode={quackMode}
-      >
-        <div className="w-full h-full flex flex-col">
+    <AIEvaluationProvider 
+      aiEvaluation={aiEvaluation} 
+      setAiEvaluation={setAiEvaluation}
+      onEvaluate={handleEvaluate}
+      isEvaluating={aiLoading}
+    >
+      <div className={styles.appContainer} style={{ fontFamily: 'DM Sans, sans-serif', backgroundColor: 'var(--background)' }}>
+        <div className={styles.navBarContainer}>
+          <NavBar
+            isAuthenticated={isAuthenticated}
+            user={user}
+            onSignIn={handleSignIn}
+            onSignOut={handleSignOut}
+            onNewDuck={handleNewDuck}
+            onCourses={() => console.log('Courses clicked')}
+            onStudyPlan={() => console.log('Study Plan clicked')}
+            onSettings={() => console.log('Settings clicked')}
+          />
+        </div>
+        
+        <div className={styles.toolBarContainer}>
+          <ToolBar
+            onHelp={handleHelp}
+            onPlay={() => console.log('Play clicked')}
+            onPause={() => console.log('Pause clicked')}
+            onStop={() => console.log('Stop clicked')}
+            showPlaybackControls={false}
+            useNewChatStyle={useNewChatStyle}
+            onToggleChatStyle={handleToggleChatStyle}
+            onToggleQuackMode={handleToggleQuackMode}
+            quackMode={quackMode}
+            webglRef={webglRef}
+          />
+        </div>
+        
+        <div className={styles.webGLContainer}>
+          <WebGLComponent 
+            ref={webglRef}
+          />
+        </div>
+        
+        <div className={styles.rubricContainer}>
+          <Rubric />
+        </div>
+        
+        <div className={styles.mainContent} style={{
+          backgroundColor: useNewChatStyle ? '#f6f6e9' : '#e0e0e0',
+          border: useNewChatStyle ? '1px solid #000' : '1px solid #ccc'
+        }}>
           {!isAuthenticated ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
@@ -427,7 +474,7 @@ function App() {
               <TopicSelector onTopicChange={(_prompt, topic, subject) => handleTopicChange(topic, subject)} />
             </div>
           ) : (
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col w-full h-full">
               <div className="flex justify-center items-center p-6">
                 <div className="space-y-1 text-center">
                   <h2 className="text-gray-600 font-medium" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', letterSpacing: '0.05em' }}>
@@ -449,8 +496,18 @@ function App() {
             </div>
           )}
         </div>
-      </Layout>
-    </div>
+        
+        <HelpModal open={showHelp} onClose={handleCloseHelp}>
+          <h2>Help</h2>
+          <p>Welcome to Darwin the Duck! This is an AI-powered learning assistant.</p>
+          <p>Use the navigation bar on the left to start a new conversation or access different features.</p>
+          <p>The toolbar at the top provides additional controls and settings.</p>
+          <button onClick={handleCloseHelp} style={{ marginTop: '10px', padding: '8px 16px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            Close
+          </button>
+        </HelpModal>
+      </div>
+    </AIEvaluationProvider>
   );
 }
 

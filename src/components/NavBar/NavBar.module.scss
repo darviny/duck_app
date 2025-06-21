@@ -7,6 +7,20 @@
   color: #000;
   font-family: Tiny5;
   z-index: 9999;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  will-change: transform, opacity;
+}
+
+.navBarVisible {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.navBarHidden {
+  transform: translateX(calc(-100% + 32px));
+  opacity: 0.8;
+  pointer-events: auto;
 }
 
 .navBarBg {
