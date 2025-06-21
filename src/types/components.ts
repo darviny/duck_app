@@ -32,9 +32,9 @@ export interface StatPanelProps extends BaseComponentProps {
   // Stat panel-specific props can be added here
 }
 
-// Todo List component props
-export interface TodoListProps extends BaseComponentProps {
-  // Todo list-specific props can be added here
+// Rubric component props
+export interface RubricProps extends BaseComponentProps {
+  // Rubric-specific props can be added here
 }
 
 // Layout component props

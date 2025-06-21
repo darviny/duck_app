@@ -9,4 +9,4 @@ export { default as Layout } from './Layout/Layout';
 export { default as NavBar } from './NavBar/NavBar';
 export { default as ToolBar } from './ToolBar/ToolBar';
 export { default as StatPanel } from './StatPanel/StatPanel';
-export { default as TodoList } from './TodoList/TodoList'; 
+export { default as Rubric } from './Rubric/Rubric'; 

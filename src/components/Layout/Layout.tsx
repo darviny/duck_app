@@ -3,7 +3,7 @@ import { LayoutProps as OriginalLayoutProps } from '../../types/components';
 import NavBar from '../NavBar/NavBar';
 import ToolBar from '../ToolBar/ToolBar';
 import { WebGLComponent } from '../web-gl-component/web-gl-component';
-import TodoList from '../TodoList/TodoList';
+import Rubric from '../Rubric/Rubric';
 import styles from './Layout.module.scss';
 
 // Make children optional
@@ -217,8 +217,8 @@ const Layout: React.FC<LayoutProps> = ({
       </div>
       
       {/* Rubric Panel (formerly TodoList) */}
-      <div className={styles.todoListContainer}>
-        <TodoList 
+      <div className={styles.rubricContainer}>
+        <Rubric 
           onEvaluate={onEvaluate}
           isEvaluating={isEvaluating}
           aiEvaluation={aiEvaluation}

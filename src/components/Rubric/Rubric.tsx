@@ -1,6 +1,6 @@
 import React from 'react';
-import { TodoListProps } from '../../types/components';
-import styles from './TodoList.module.scss';
+import { RubricProps } from '../../types/components';
+import styles from './Rubric.module.scss';
 
 interface AIEvaluationData {
   clarity: number;
@@ -11,13 +11,13 @@ interface AIEvaluationData {
   overall_comment: string;
 }
 
-interface ExtendedTodoListProps extends TodoListProps {
+interface ExtendedRubricProps extends RubricProps {
   onEvaluate?: () => void;
   isEvaluating?: boolean;
   aiEvaluation?: AIEvaluationData;
 }
 
-const TodoList: React.FC<ExtendedTodoListProps> = ({ 
+const Rubric: React.FC<ExtendedRubricProps> = ({ 
   className, 
   id, 
   onEvaluate, 
@@ -30,8 +30,8 @@ const TodoList: React.FC<ExtendedTodoListProps> = ({
   );
 
   return (
-    <div className={`${styles.todoList} ${className || ''}`} id={id}>
-      <div className={styles.todoListContent}>
+    <div className={`${styles.rubric} ${className || ''}`} id={id}>
+      <div className={styles.rubricContent}>
         <span className={styles.componentName}>Rubric</span>
         
         {!hasEvaluationResults ? (
@@ -79,4 +79,4 @@ const TodoList: React.FC<ExtendedTodoListProps> = ({
   );
 };
 
-export default TodoList; 
+export default Rubric; 
