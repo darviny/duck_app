@@ -5,7 +5,8 @@ import {
   arrowsOutputIcon, 
   pauseCircleIcon, 
   playCircleIcon, 
-  stopCircleIcon 
+  stopCircleIcon,
+  duckIcon
 } from '../../assets/index';
 
 interface ToolBarProps {
@@ -17,6 +18,8 @@ interface ToolBarProps {
   showPlaybackControls?: boolean;
   useNewChatStyle?: boolean;
   onToggleChatStyle?: () => void;
+  onToggleQuackMode?: () => void;
+  quackMode?: boolean;
 }
 
 const ToolBar: React.FC<ToolBarProps> = ({
@@ -27,50 +30,73 @@ const ToolBar: React.FC<ToolBarProps> = ({
   onStop,
   showPlaybackControls = false,
   useNewChatStyle = false,
-  onToggleChatStyle
+  onToggleChatStyle,
+  onToggleQuackMode,
+  quackMode = false
 }) => {
   return (
     <header className={styles.toolBar} role="banner" aria-label="Tool bar">
       <div className={styles.toolBarBg}>
         <div className={styles.toolsIcon}>
-          {/* Left Controls - Playback Controls (optional) */}
-          {showPlaybackControls && (
-            <div className={styles.leftControls}>
-              <button
-                className={styles.stopCircleIcon}
-                onClick={onStop}
-                aria-label="Stop"
-              >
-                <img 
-                  src={stopCircleIcon} 
-                  alt="Stop" 
-                  className={styles.controlIcon}
-                />
-              </button>
-              <button
-                className={styles.playCircleIcon}
-                onClick={onPlay}
-                aria-label="Play"
-              >
-                <img 
-                  src={playCircleIcon} 
-                  alt="Play" 
-                  className={styles.controlIcon}
-                />
-              </button>
-              <button
-                className={styles.pauseCircleIcon}
-                onClick={onPause}
-                aria-label="Pause"
-              >
-                <img 
-                  src={pauseCircleIcon} 
-                  alt="Pause" 
-                  className={styles.controlIcon}
-                />
-              </button>
-            </div>
-          )}
+          {/* Left Controls - Duck Icon and Playback Controls (optional) */}
+          <div className={styles.leftControls}>
+            <button
+              className={`${styles.duckIcon} ${quackMode ? styles.quackMode : ''}`}
+              onClick={() => {
+                console.log('🦆 Duck icon clicked!');
+                if (onToggleQuackMode) {
+                  onToggleQuackMode();
+                } else {
+                  console.log('❌ onToggleQuackMode is not defined');
+                }
+              }}
+              aria-label="Toggle quack mode"
+              title={quackMode ? "Quack mode: ON - Click to turn off" : "Quack mode: OFF - Click to turn on"}
+            >
+              <img 
+                src={duckIcon} 
+                alt="Darwin Duck" 
+                className={styles.controlIcon}
+              />
+            </button>
+            {showPlaybackControls && (
+              <>
+                <button
+                  className={styles.stopCircleIcon}
+                  onClick={onStop}
+                  aria-label="Stop"
+                >
+                  <img 
+                    src={stopCircleIcon} 
+                    alt="Stop" 
+                    className={styles.controlIcon}
+                  />
+                </button>
+                <button
+                  className={styles.playCircleIcon}
+                  onClick={onPlay}
+                  aria-label="Play"
+                >
+                  <img 
+                    src={playCircleIcon} 
+                    alt="Play" 
+                    className={styles.controlIcon}
+                  />
+                </button>
+                <button
+                  className={styles.pauseCircleIcon}
+                  onClick={onPause}
+                  aria-label="Pause"
+                >
+                  <img 
+                    src={pauseCircleIcon} 
+                    alt="Pause" 
+                    className={styles.controlIcon}
+                  />
+                </button>
+              </>
+            )}
+          </div>
           
           {/* Right Controls - Help and Full Screen */}
           <div className={styles.rightControls}>

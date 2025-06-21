@@ -7,6 +7,14 @@ import { createAIHooks } from "@aws-amplify/ui-react-ai";
 import Layout from './components/Layout/Layout';
 import ChatInterface from './components/ChatInterface';
 import TopicSelector from './components/TopicSelector';
+import { DuckStates } from './components/web-gl-component/ThreeJSModules/enums';
+
+// Global reference to AnimationController
+declare global {
+  interface Window {
+    duckAnimationController?: any;
+  }
+}
 
 const client = generateClient<Schema>();
 const { useAIGeneration } = createAIHooks(client);
@@ -38,6 +46,7 @@ function App() {
   const [showTopicSelector, setShowTopicSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [useNewChatStyle, setUseNewChatStyle] = useState(false);
+  const [quackMode, setQuackMode] = useState(false);
   const [aiEvaluation, setAiEvaluation] = useState<AIEvaluationData>({
     clarity: 0,
     accuracy: 0,
@@ -49,8 +58,43 @@ function App() {
   const initializedRef = useRef(false);
   const accumulatedTextRef = useRef('');
   const shouldEvaluateRef = useRef(false);
+  const quackModeRef = useRef(quackMode);
 
   const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+
+  // Update the ref whenever quackMode changes
+  useEffect(() => {
+    quackModeRef.current = quackMode;
+  }, [quackMode]);
+
+  // Function to parse action from Darwin's message
+  const parseDuckAction = (message: string): { action: DuckStates; cleanMessage: string } => {
+    // Look for action in curly brackets at the beginning of the message
+    const actionMatch = message.match(/^\s*\{([^}]+)\}\s*(.*)/);
+    
+    if (actionMatch) {
+      const actionText = actionMatch[1].trim().toLowerCase();
+      const cleanMessage = actionMatch[2].trim();
+      
+      // Map action text to DuckStates
+      switch (actionText) {
+        case 'idle':
+          return { action: DuckStates.IDLE, cleanMessage };
+        case 'lay':
+        case 'laying':
+          return { action: DuckStates.LAY, cleanMessage };
+        case 'eat':
+        case 'eating':
+          return { action: DuckStates.EAT, cleanMessage };
+        default:
+          // Default to IDLE if action is not recognized
+          return { action: DuckStates.IDLE, cleanMessage };
+      }
+    }
+    
+    // No action found, return IDLE and original message
+    return { action: DuckStates.IDLE, cleanMessage: message };
+  };
 
   const handleEvaluateWithMessages = useCallback(async (messagesToEvaluate: Message[]) => {
     if (messagesToEvaluate.length === 0) {
@@ -154,12 +198,34 @@ function App() {
                 // Only add the message if it's not empty
                 if (completeMessage.trim()) {
                   setMessages(prev => {
+                    // Parse duck action from Darwin's message
+                    const { action, cleanMessage } = parseDuckAction(completeMessage);
+                    
+                    console.log(`🦆 Processing Darwin message:`);
+                    console.log(`   Original message: "${completeMessage}"`);
+                    console.log(`   Clean message: "${cleanMessage}"`);
+                    console.log(`   Quack mode state: ${quackModeRef.current}`);
+                    
+                    // Directly set AnimationController state (same as GUI)
+                    if (window.duckAnimationController) {
+                        window.duckAnimationController.nextAction = action;
+                    }
+                    
                     const updatedMessages = [...prev, {
                       id: prev.length + 1,
                       sender: 'Darwin the Duck',
-                      content: completeMessage,
+                      content: quackModeRef.current ? `${cleanMessage} Quack!` : cleanMessage, // Append "Quack!" if quack mode is enabled
                       isUser: false
                     }];
+                    
+                    // Log if quack mode modified the message
+                    if (quackModeRef.current) {
+                      console.log(`🦆 Quack mode active - Message modified with "Quack!"`);
+                      console.log(`   Original: "${cleanMessage}"`);
+                      console.log(`   Modified: "${cleanMessage} Quack!"`);
+                    } else {
+                      console.log(`🦆 Quack mode inactive - Message not modified`);
+                    }
                     
                     // Only evaluate if this was triggered by a user message
                     if (shouldEvaluateRef.current) {
@@ -201,7 +267,7 @@ function App() {
     };
 
     initializeChat();
-  }, [isAuthenticated, currentTopic, currentSubject, handleEvaluateWithMessages]);
+  }, [isAuthenticated, currentTopic, currentSubject, handleEvaluateWithMessages, quackMode]);
 
   const handleTopicChange = async (topic: string, subject: string) => {
     setCurrentTopic(topic);
@@ -213,6 +279,16 @@ function App() {
     initializedRef.current = false;
     setChat(null);
     shouldEvaluateRef.current = false; // Reset evaluation flag
+    
+    // Reset AI evaluation to original state
+    setAiEvaluation({
+      clarity: 0,
+      accuracy: 0,
+      engagement: 0,
+      suggestions: [],
+      evidence: [],
+      overall_comment: ''
+    });
     
     // Re-initialize will happen in useEffect
   };
@@ -276,6 +352,14 @@ function App() {
     setUseNewChatStyle(!useNewChatStyle);
   };
 
+  const handleToggleQuackMode = () => {
+    const newQuackMode = !quackMode;
+    console.log(`🦆 Quack mode ${newQuackMode ? 'ENABLED' : 'DISABLED'}`);
+    console.log(`   Previous state: ${quackMode}`);
+    console.log(`   New state: ${newQuackMode}`);
+    setQuackMode(newQuackMode);
+  };
+
   const handleEvaluate = async () => {
     if (messages.length === 0) {
       console.log('No messages to evaluate');
@@ -321,6 +405,8 @@ function App() {
         isEvaluating={aiLoading}
         useNewChatStyle={useNewChatStyle}
         onToggleChatStyle={handleToggleChatStyle}
+        onToggleQuackMode={handleToggleQuackMode}
+        quackMode={quackMode}
       >
         <div className="w-full h-full flex flex-col">
           {!isAuthenticated ? (

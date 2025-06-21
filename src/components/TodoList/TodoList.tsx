@@ -26,7 +26,6 @@ const TodoList: React.FC<ExtendedTodoListProps> = ({
 }) => {
   const hasEvaluationResults = aiEvaluation && (
     aiEvaluation.suggestions.length > 0 || 
-    aiEvaluation.evidence.length > 0 || 
     aiEvaluation.overall_comment
   );
 
@@ -62,19 +61,6 @@ const TodoList: React.FC<ExtendedTodoListProps> = ({
                       </li>
                     );
                   })}
-                </ul>
-              </div>
-            )}
-            
-            {aiEvaluation?.evidence && aiEvaluation.evidence.length > 0 && (
-              <div className={styles.evidenceSection}>
-                <h4 className={styles.sectionTitle}>Supporting Evidence</h4>
-                <ul className={styles.bulletList}>
-                  {aiEvaluation.evidence.map((evidence, index) => (
-                    <li key={index} className={styles.bulletItem}>
-                      {evidence}
-                    </li>
-                  ))}
                 </ul>
               </div>
             )}

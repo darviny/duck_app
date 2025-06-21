@@ -2,7 +2,6 @@ import { AnimationAction, Scene } from 'three/src/Three.js';
 // import { getIntersects } from './rayCastUtils.js';
 import { DuckStates } from './enums/DuckStates.js';
 import Duck from './Duck';
-import { GUI } from 'lil-gui';
 import * as THREE from 'three';
 
 export default class AnimationController {
@@ -13,7 +12,6 @@ export default class AnimationController {
     nextAction?: DuckStates;
     speed = 0;
     model?: Duck;
-    gui?: GUI;
 
     private targetY?: number;
     private yLerpSpeed = 0.05;
@@ -32,28 +30,16 @@ export default class AnimationController {
         this.scene.add(this.model);
 
         this.nextAction = DuckStates.IDLE;
-
-        // GUI - Position at top center
-        this.gui = new GUI();
-        this.gui.domElement.style.position = 'absolute';
-        this.gui.domElement.style.top = '20px';
-        this.gui.domElement.style.left = '50%';
-        this.gui.domElement.style.transform = 'translateX(-50%)';
-        this.gui.domElement.style.zIndex = '1000';
-        
-        const duckStates = this.gui.addFolder('Duck States');
-
-        duckStates.add(this, 'nextAction', {
-            idle: DuckStates.IDLE,
-            eat: DuckStates.EAT,
-            lay: DuckStates.LAY,
-        });
     }
 
     setAction(action: AnimationAction) {
         if (this.activeAction !== action) {
             this.activeAction?.fadeOut(1);
-            action.reset().fadeIn(1).play();
+            // Only reset if the action is not already playing or if it's a one-shot animation
+            if (!action.isRunning() || action.loop === THREE.LoopOnce) {
+                action.reset();
+            }
+            action.fadeIn(1).play();
             this.activeAction = action;
         }
     }
@@ -86,7 +72,7 @@ export default class AnimationController {
                                 idleToLayAction
                                     .getMixer()
                                     .removeEventListener('finished', onIdleToLayFinished);
-                                layAction.reset();
+                                // Don't reset the lay action - let it continue smoothly
                                 layAction.setLoop(THREE.LoopRepeat, Infinity);
                                 layAction.clampWhenFinished = false;
                                 layAction.fadeIn(1).play();
@@ -129,7 +115,7 @@ export default class AnimationController {
                                 layToIdleAction
                                     .getMixer()
                                     .removeEventListener('finished', onLayToIdleActionFinished);
-                                idleAction.reset();
+                                // Don't reset the idle action - let it continue smoothly
                                 idleAction.setLoop(THREE.LoopRepeat, Infinity);
                                 idleAction.clampWhenFinished = false;
                                 idleAction.fadeIn(1).play();

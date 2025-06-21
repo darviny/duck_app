@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import Message from './Message';
 import InputBox from './InputBox';
 
@@ -58,6 +58,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
+  // Find the latest user message ID
+  const latestUserMessageId = useMemo(() => {
+    const userMessages = messages.filter(msg => msg.isUser);
+    return userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
+  }, [messages]);
+
   return (
     <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full">
       <div className="flex gap-3 p-3 flex-wrap pr-4">
@@ -75,6 +81,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             isUser={message.isUser}
             useNewStyle={useNewStyle}
             aiEvaluation={aiEvaluation}
+            isLatestUserMessage={message.isUser && message.id === latestUserMessageId}
           />
         ))}
       </div>

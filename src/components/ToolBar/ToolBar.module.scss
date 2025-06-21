@@ -1,8 +1,6 @@
 .toolBar {
-  width: 100%;
   position: relative;
-  max-width: 100%;
-  overflow: hidden;
+  width: 100%;
   height: 51px;
   object-fit: cover;
 }
@@ -11,7 +9,7 @@
   width: 100%;
   position: relative;
   background-color: #f6f6e9;
-  border-bottom: 2px solid #000;
+  border-bottom: 1px solid #000;
   box-sizing: border-box;
   height: 52px;
   align-content: center;
@@ -37,6 +35,7 @@
   justify-content: start;
   margin-left: 350px;
   gap: 10px;
+  align-items: center;
 }
 
 .rightControls {
@@ -98,4 +97,33 @@ button {
 
 .arrowsOutputIcon {
   // Button styles are inherited from the button element
+}
+
+.duckIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  
+  img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    img {
+      transform: scale(1.1);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+  }
+  
+  &.quackMode {
+    img {
+      /* Gold/yellow color filter */
+      filter: sepia(1) hue-rotate(-30deg) saturate(5) brightness(1.2) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+  }
 } 

@@ -25,36 +25,115 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicChange }) => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm border">
-      <h3 className="text-lg font-semibold mb-4">Select Topic for Darwin the Duck</h3>
+    <div 
+      className="p-6 rounded-[15px] shadow-sm"
+      style={{
+        backgroundColor: '#f6f6e9',
+        fontFamily: 'DM Sans, sans-serif',
+        maxWidth: '600px',
+        width: '100%'
+      }}
+    >
+      <h3 
+        className="text-xl font-semibold mb-6 text-center"
+        style={{ 
+          fontFamily: 'DM Sans, sans-serif',
+          color: '#000000',
+          fontSize: '1.3rem',
+          letterSpacing: 'normal'
+        }}
+      >
+        Select Topic for Darwin the Duck
+      </h3>
       
       {/* Preset Topics */}
-      <div className="mb-6">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Preset Topics</h4>
-        <div className="grid grid-cols-2 gap-2">
+      <div className="mb-8">
+        <h4 
+          className="text-sm font-medium mb-4"
+          style={{ 
+            fontFamily: 'DM Sans, sans-serif',
+            color: '#000000',
+            fontSize: '0.9rem',
+            letterSpacing: '0.05em'
+          }}
+        >
+          Preset Topics
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
           {Object.entries(TOPIC_SUBJECTS).map(([key, { topic, subject }]) => (
             <button
               key={key}
               onClick={() => handlePresetChange(key as keyof typeof TOPIC_SUBJECTS)}
-              className={`p-3 text-left rounded-md border transition-colors ${
-                selectedPreset === key
-                  ? 'bg-blue-50 border-blue-200 text-blue-700'
-                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-              }`}
+              className="p-4 text-left rounded-[8px] border transition-all duration-200"
+              style={{
+                backgroundColor: selectedPreset === key ? '#272727' : '#ffffff',
+                border: '1px solid #000000',
+                color: selectedPreset === key ? '#ffffff' : '#000000',
+                fontFamily: 'DM Sans, sans-serif',
+                cursor: 'pointer',
+                transform: 'scale(1)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedPreset !== key) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedPreset !== key) {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              }}
             >
-              <div className="font-medium text-sm">{topic}</div>
-              <div className="text-xs text-gray-500">{subject}</div>
+              <div 
+                className="font-medium text-sm mb-1"
+                style={{ 
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: '600'
+                }}
+              >
+                {topic}
+              </div>
+              <div 
+                className="text-xs"
+                style={{ 
+                  fontFamily: 'DM Sans, sans-serif',
+                  color: selectedPreset === key ? '#cccccc' : '#666666'
+                }}
+              >
+                {subject}
+              </div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Custom Topic */}
-      <div className="border-t pt-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">Custom Topic</h4>
-        <div className="space-y-3">
+      <div className="border-t pt-6" style={{ borderColor: '#000000' }}>
+        <h4 
+          className="text-sm font-medium mb-4"
+          style={{ 
+            fontFamily: 'DM Sans, sans-serif',
+            color: '#000000',
+            fontSize: '0.9rem',
+            letterSpacing: '0.05em'
+          }}
+        >
+          Custom Topic
+        </h4>
+        <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label 
+              className="block text-xs font-medium mb-2"
+              style={{ 
+                fontFamily: 'DM Sans, sans-serif',
+                color: '#000000',
+                fontSize: '0.8rem',
+                letterSpacing: '0.05em'
+              }}
+            >
               Topic
             </label>
             <input
@@ -62,11 +141,33 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicChange }) => {
               value={customTopic}
               onChange={(e) => setCustomTopic(e.target.value)}
               placeholder="e.g., Photosynthesis, Shakespeare, World War II"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border rounded-[8px] text-sm focus:outline-none transition-colors"
+              style={{
+                border: '1px solid #000000',
+                backgroundColor: '#ffffff',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: '0.9rem'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#272727';
+                e.target.style.backgroundColor = '#f8f8f8';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#000000';
+                e.target.style.backgroundColor = '#ffffff';
+              }}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label 
+              className="block text-xs font-medium mb-2"
+              style={{ 
+                fontFamily: 'DM Sans, sans-serif',
+                color: '#000000',
+                fontSize: '0.8rem',
+                letterSpacing: '0.05em'
+              }}
+            >
               Subject
             </label>
             <input
@@ -74,13 +175,50 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicChange }) => {
               value={customSubject}
               onChange={(e) => setCustomSubject(e.target.value)}
               placeholder="e.g., Biology, Literature, History"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border rounded-[8px] text-sm focus:outline-none transition-colors"
+              style={{
+                border: '1px solid #000000',
+                backgroundColor: '#ffffff',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: '0.9rem'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#272727';
+                e.target.style.backgroundColor = '#f8f8f8';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#000000';
+                e.target.style.backgroundColor = '#ffffff';
+              }}
             />
           </div>
           <button
             onClick={handleCustomSubmit}
             disabled={!customTopic || !customSubject}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="w-full py-3 px-4 rounded-[8px] text-sm font-medium transition-all duration-200"
+            style={{
+              backgroundColor: (!customTopic || !customSubject) ? '#666666' : '#272727',
+              color: '#ffffff',
+              border: '1px solid #000000',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              cursor: (!customTopic || !customSubject) ? 'not-allowed' : 'pointer',
+              transform: 'scale(1)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (customTopic && customSubject) {
+                e.currentTarget.style.backgroundColor = '#404040';
+                e.currentTarget.style.transform = 'scale(1.01)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (customTopic && customSubject) {
+                e.currentTarget.style.backgroundColor = '#272727';
+                e.currentTarget.style.transform = 'scale(1)';
+              }
+            }}
           >
             Set Custom Topic
           </button>
@@ -88,9 +226,32 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicChange }) => {
       </div>
 
       {/* Current Selection Display */}
-      <div className="mt-4 p-3 bg-gray-50 rounded-md">
-        <div className="text-xs font-medium text-gray-600 mb-1">Current Topic:</div>
-        <div className="text-sm">
+      <div 
+        className="mt-6 p-4 rounded-[8px]"
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #000000'
+        }}
+      >
+        <div 
+          className="text-xs font-medium mb-2"
+          style={{ 
+            fontFamily: 'DM Sans, sans-serif',
+            color: '#000000',
+            fontSize: '0.8rem',
+            letterSpacing: '0.05em'
+          }}
+        >
+          Current Topic:
+        </div>
+        <div 
+          className="text-sm"
+          style={{ 
+            fontFamily: 'DM Sans, sans-serif',
+            color: '#000000',
+            fontSize: '0.9rem'
+          }}
+        >
           {customTopic && customSubject 
             ? `${customTopic} in ${customSubject}`
             : `${TOPIC_SUBJECTS[selectedPreset].topic} in ${TOPIC_SUBJECTS[selectedPreset].subject}`

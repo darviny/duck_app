@@ -27,6 +27,8 @@ export interface LayoutProps extends Omit<OriginalLayoutProps, 'children'> {
   isEvaluating?: boolean;
   useNewChatStyle?: boolean;
   onToggleChatStyle?: () => void;
+  onToggleQuackMode?: () => void;
+  quackMode?: boolean;
 }
 
 const AUTOHIDE_DELAY = 1000; // ms
@@ -45,7 +47,9 @@ const Layout: React.FC<LayoutProps> = ({
   onEvaluate,
   isEvaluating,
   useNewChatStyle,
-  onToggleChatStyle
+  onToggleChatStyle,
+  onToggleQuackMode,
+  quackMode
 }) => {
   // State for Help modal
   const [showHelp, setShowHelp] = useState(false);
@@ -194,6 +198,8 @@ const Layout: React.FC<LayoutProps> = ({
           showPlaybackControls={false}
           useNewChatStyle={useNewChatStyle}
           onToggleChatStyle={onToggleChatStyle}
+          onToggleQuackMode={onToggleQuackMode}
+          quackMode={quackMode}
         />
       </div>
       

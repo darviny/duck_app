@@ -1,17 +1,18 @@
 // Navigation bar assets
-export const logoIcon = '/src/assets/img/logo.png';
-export const iconNewduck = '/src/assets/img/icon-newduck.png';
-export const iconCourses = '/src/assets/img/icon-courses.png';
-export const iconStudyplan = '/src/assets/img/icon-studyplan.png';
-export const iconSettings = '/src/assets/img/icon-settings.png';
+export const logoIcon = '/logo.png';
+export const iconNewduck = '/icon-newduck.png';
+export const iconCourses = '/icon-courses.png';
+export const iconStudyplan = '/icon-studyplan.png';
+export const iconSettings = '/icon-settings.png';
 
 // ToolBar assets
-export const helpIcon = '/src/assets/img/help.png';
-export const arrowsOutputIcon = '/src/assets/img/arrows_output.png';
-export const pauseCircleIcon = '/src/assets/img/pause_circle.png';
-export const playCircleIcon = '/src/assets/img/play_circle.png';
-export const stopCircleIcon = '/src/assets/img/stop_circle.png';
+export const helpIcon = '/help.png';
+export const arrowsOutputIcon = '/arrows_output.png';
+export const pauseCircleIcon = '/pause_circle.png';
+export const playCircleIcon = '/play_circle.png';
+export const stopCircleIcon = '/stop_circle.png';
+export const duckIcon = '/DarwinDuckOnlyIcon.png';
 
 // Other assets
-export const duckImage = '/src/assets/duck.jpg';
-export const reactLogo = '/src/assets/react.svg'; 
+export const duckImage = '/duck.jpg';
+export const reactLogo = '/react.svg'; 

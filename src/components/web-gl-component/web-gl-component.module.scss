@@ -9,7 +9,7 @@
   overflow: hidden;
   z-index: 10;
   background: #eee;
-  border: 2px solid #000;
+  
   
   // Fullscreen styles
   &:fullscreen {
@@ -44,6 +44,7 @@ canvas {
     height: 100% !important;
     display: block;
     border-radius: inherit;
+    border: 1px solid #000;
     
     // Fullscreen canvas styles
     .webglcomponent:fullscreen & {
