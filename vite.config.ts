@@ -7,7 +7,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "./src/styles/colors.scss" as *;`
+        additionalData: `@use "./src/styles/colors.scss" as *;`,
+        silenceDeprecations: ['legacy-js-api']
       }
     }
   }
