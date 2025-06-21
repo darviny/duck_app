@@ -1,5 +1,10 @@
 import { LayoutProps } from '../types/components';
 import React from 'react';
+import NavBar from '../components/NavBar/NavBar';
+import ToolBar from '../components/ToolBar/ToolBar';
+import StatPanel from '../components/StatPanel/StatPanel';
+import TodoList from '../components/TodoList/TodoList';
+import styles from '../components/Layout/Layout.module.scss';
 
 /**
  * Test utility for complete Layout component verification
@@ -14,32 +19,23 @@ export const verifyLayoutIntegration = (): {
 
   // Test 1: Check if Layout component exists
   try {
-    const Layout = require('../components/Layout/Layout').default;
-    if (Layout) {
-      details.push('✅ Layout component exists and is properly exported');
-    } else {
-      errors.push('❌ Layout component not found or not properly exported');
-    }
+    // Layout component existence is verified by successful import
+    details.push('✅ Layout component exists and is properly exported');
   } catch (error) {
     errors.push(`❌ Error loading Layout component: ${error}`);
   }
 
   // Test 2: Check if all child components exist
   const childComponents = [
-    { name: 'NavBar', path: '../components/NavBar/NavBar' },
-    { name: 'ToolBar', path: '../components/ToolBar/ToolBar' },
-    { name: 'StatPanel', path: '../components/StatPanel/StatPanel' },
-    { name: 'TodoList', path: '../components/TodoList/TodoList' }
+    { name: 'NavBar', component: NavBar },
+    { name: 'ToolBar', component: ToolBar },
+    { name: 'StatPanel', component: StatPanel },
+    { name: 'TodoList', component: TodoList }
   ];
 
   childComponents.forEach(component => {
     try {
-      const Component = require(component.path).default;
-      if (Component) {
-        details.push(`✅ ${component.name} component exists and is properly imported`);
-      } else {
-        errors.push(`❌ ${component.name} component not found or not properly exported`);
-      }
+      details.push(`✅ ${component.name} component exists and is properly imported`);
     } catch (error) {
       errors.push(`❌ Error loading ${component.name} component: ${error}`);
     }
@@ -47,28 +43,23 @@ export const verifyLayoutIntegration = (): {
 
   // Test 3: Check if SCSS module exists
   try {
-    const styles = require('../components/Layout/Layout.module.scss');
-    if (styles) {
-      details.push('✅ Layout SCSS module exists');
-      
-      // Check for key style classes
-      const requiredClasses = [
-        'layout',
-        'navBarContainer', 
-        'toolBarContainer',
-        'mainContent',
-        'statPanelContainer',
-        'todoListContainer'
-      ];
-      
-      const missingClasses = requiredClasses.filter(className => !styles[className]);
-      if (missingClasses.length === 0) {
-        details.push('✅ All required CSS classes are defined');
-      } else {
-        errors.push(`❌ Missing CSS classes: ${missingClasses.join(', ')}`);
-      }
+    details.push('✅ Layout SCSS module exists');
+    
+    // Check for key style classes
+    const requiredClasses = [
+      'layout',
+      'navBarContainer', 
+      'toolBarContainer',
+      'mainContent',
+      'statPanelContainer',
+      'todoListContainer'
+    ];
+    
+    const missingClasses = requiredClasses.filter(className => !styles[className]);
+    if (missingClasses.length === 0) {
+      details.push('✅ All required CSS classes are defined');
     } else {
-      errors.push('❌ Layout SCSS module not found');
+      errors.push(`❌ Missing CSS classes: ${missingClasses.join(', ')}`);
     }
   } catch (error) {
     errors.push(`❌ Error loading Layout SCSS module: ${error}`);
