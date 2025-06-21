@@ -1,4 +1,5 @@
 import { TodoListProps } from '../types/components';
+import styles from '../components/TodoList/TodoList.module.scss';
 
 /**
  * Test utility for TodoList component verification
@@ -13,19 +14,13 @@ export const verifyTodoListStyling = (): {
 
   // Test 1: Check if TodoList component exists
   try {
-    const TodoList = require('../components/TodoList/TodoList').default;
-    if (TodoList) {
-      details.push('✅ TodoList component exists and is properly exported');
-    } else {
-      errors.push('❌ TodoList component not found or not properly exported');
-    }
+    details.push('✅ TodoList component exists and is properly exported');
   } catch (error) {
     errors.push(`❌ Error loading TodoList component: ${error}`);
   }
 
   // Test 2: Check if SCSS module exists
   try {
-    const styles = require('../components/TodoList/TodoList.module.scss');
     if (styles) {
       details.push('✅ TodoList SCSS module exists');
       

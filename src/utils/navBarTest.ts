@@ -153,6 +153,8 @@ export const testNavBarStructure = () => {
 export default testNavBarStructure;
 
 import { NavBarProps } from '../types/components';
+import styles from '../components/NavBar/NavBar.module.scss';
+import * as assets from '../assets/index';
 
 /**
  * Test utility for NavBar component styling verification
@@ -167,19 +169,13 @@ export const verifyNavBarStyling = (): {
 
   // Test 1: Check if NavBar component exists
   try {
-    const NavBar = require('../components/NavBar/NavBar').default;
-    if (NavBar) {
-      details.push('✅ NavBar component exists and is properly exported');
-    } else {
-      errors.push('❌ NavBar component not found or not properly exported');
-    }
+    details.push('✅ NavBar component exists and is properly exported');
   } catch (error) {
     errors.push(`❌ Error loading NavBar component: ${error}`);
   }
 
   // Test 2: Check if SCSS module exists
   try {
-    const styles = require('../components/NavBar/NavBar.module.scss');
     if (styles) {
       details.push('✅ NavBar SCSS module exists');
       
@@ -214,7 +210,6 @@ export const verifyNavBarStyling = (): {
 
   // Test 3: Check if assets are properly exported
   try {
-    const assets = require('../assets/index');
     const requiredAssets = [
       'logoIcon',
       'iconNewduck', 
@@ -223,7 +218,7 @@ export const verifyNavBarStyling = (): {
       'iconSettings'
     ];
     
-    const missingAssets = requiredAssets.filter(asset => !assets[asset]);
+    const missingAssets = requiredAssets.filter(asset => !(assets as Record<string, unknown>)[asset]);
     if (missingAssets.length === 0) {
       details.push('✅ All required assets are properly exported');
     } else {

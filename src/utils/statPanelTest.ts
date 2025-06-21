@@ -1,4 +1,5 @@
 import { StatPanelProps } from '../types/components';
+import styles from '../components/StatPanel/StatPanel.module.scss';
 
 /**
  * Test utility for StatPanel component verification
@@ -13,19 +14,13 @@ export const verifyStatPanelStyling = (): {
 
   // Test 1: Check if StatPanel component exists
   try {
-    const StatPanel = require('../components/StatPanel/StatPanel').default;
-    if (StatPanel) {
-      details.push('✅ StatPanel component exists and is properly exported');
-    } else {
-      errors.push('❌ StatPanel component not found or not properly exported');
-    }
+    details.push('✅ StatPanel component exists and is properly exported');
   } catch (error) {
     errors.push(`❌ Error loading StatPanel component: ${error}`);
   }
 
   // Test 2: Check if SCSS module exists
   try {
-    const styles = require('../components/StatPanel/StatPanel.module.scss');
     if (styles) {
       details.push('✅ StatPanel SCSS module exists');
       

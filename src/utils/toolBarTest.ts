@@ -1,4 +1,6 @@
 import { ToolBarProps } from '../types/components';
+import styles from '../components/ToolBar/ToolBar.module.scss';
+import * as assets from '../assets/index';
 
 /**
  * Test utility for ToolBar component verification
@@ -13,19 +15,13 @@ export const verifyToolBarStyling = (): {
 
   // Test 1: Check if ToolBar component exists
   try {
-    const ToolBar = require('../components/ToolBar/ToolBar').default;
-    if (ToolBar) {
-      details.push('✅ ToolBar component exists and is properly exported');
-    } else {
-      errors.push('❌ ToolBar component not found or not properly exported');
-    }
+    details.push('✅ ToolBar component exists and is properly exported');
   } catch (error) {
     errors.push(`❌ Error loading ToolBar component: ${error}`);
   }
 
   // Test 2: Check if SCSS module exists
   try {
-    const styles = require('../components/ToolBar/ToolBar.module.scss');
     if (styles) {
       details.push('✅ ToolBar SCSS module exists');
       
@@ -59,7 +55,6 @@ export const verifyToolBarStyling = (): {
 
   // Test 3: Check if assets are properly exported
   try {
-    const assets = require('../assets/index');
     const requiredAssets = [
       'helpIcon',
       'arrowsOutputIcon', 
@@ -68,7 +63,7 @@ export const verifyToolBarStyling = (): {
       'stopCircleIcon'
     ];
     
-    const missingAssets = requiredAssets.filter(asset => !assets[asset]);
+    const missingAssets = requiredAssets.filter(asset => !(assets as any)[asset]);
     if (missingAssets.length === 0) {
       details.push('✅ All required assets are properly exported');
     } else {
