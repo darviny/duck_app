@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 interface MessageProps {
@@ -7,6 +7,7 @@ interface MessageProps {
   content: string;
   isUser: boolean;
   useNewStyle?: boolean;
+  isLatestUserMessage?: boolean;
   aiEvaluation?: {
     clarity: number;
     accuracy: number;
@@ -17,10 +18,63 @@ interface MessageProps {
   };
 }
 
-const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewStyle = false, aiEvaluation }) => {
+const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewStyle = false, isLatestUserMessage = false, aiEvaluation }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const messageRef = useRef<HTMLParagraphElement>(null);
+  const cachedEvidenceRef = useRef<string[]>([]);
+
+  // Cache the parsed evidence reasoning strings
+  // Only update cache for the latest user message or if no cache exists
+  const cachedEvidence = useMemo(() => {
+    if (!aiEvaluation || !aiEvaluation.evidence || !isUser) return [];
+    
+    // If this is the latest user message, process and cache the evidence
+    if (isLatestUserMessage) {
+      // Look for evidence that mentions this message's content
+      const relevantEvidence = aiEvaluation.evidence.filter(evidence => 
+        evidence.toLowerCase().includes(content.toLowerCase().substring(0, 20)) ||
+        evidence.includes(`Message ID ${id}`)
+      );
+      
+      // Parse and cache the reasoning for each piece of evidence
+      const parsedEvidence = relevantEvidence.map(evidence => {
+        // Extract reasoning from formats like:
+        // "Engagement - Message ID 2: The response is short..."
+        // "Clarity - Message ID 2: 'hi' - The learner's response..."
+        let reasoning = '';
+        
+        // Look for the pattern: Message ID {number}: {reasoning}
+        const messageIdMatch = evidence.match(/Message ID \d+:\s*(.+)/);
+        if (messageIdMatch) {
+          reasoning = messageIdMatch[1].trim();
+        } else {
+          // Fallback: look for the last dash in the string and take everything after it
+          const lastDashIndex = evidence.lastIndexOf(' - ');
+          if (lastDashIndex !== -1) {
+            reasoning = evidence.substring(lastDashIndex + 3).trim(); // +3 to skip " - "
+          } else {
+            // Last resort: try to get everything after the first "-" (without space)
+            const parts = evidence.split('-');
+            if (parts.length > 1) {
+              reasoning = parts.slice(1).join('-').trim();
+            } else {
+              reasoning = evidence;
+            }
+          }
+        }
+        
+        return reasoning;
+      });
+      
+      // Update the cached evidence
+      cachedEvidenceRef.current = parsedEvidence;
+      return parsedEvidence;
+    } else {
+      // For older messages, return the cached evidence
+      return cachedEvidenceRef.current;
+    }
+  }, [aiEvaluation, content, id, isUser, isLatestUserMessage]);
 
   const handleMouseEnter = () => {
     if (isUser && messageRef.current) {
@@ -36,21 +90,6 @@ const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewSt
   const handleMouseLeave = () => {
     setShowTooltip(false);
   };
-
-  // Find evidence related to this message
-  const getMessageEvidence = () => {
-    if (!aiEvaluation || !aiEvaluation.evidence || !isUser) return [];
-    
-    // Look for evidence that mentions this message's content
-    const relevantEvidence = aiEvaluation.evidence.filter(evidence => 
-      evidence.toLowerCase().includes(content.toLowerCase().substring(0, 20)) ||
-      evidence.includes(`Message ID ${id}`)
-    );
-    
-    return relevantEvidence;
-  };
-
-  const messageEvidence = getMessageEvidence();
 
   return (
     <div className={`flex items-end gap-3 p-4 ${isUser ? 'justify-end' : ''}`}>
@@ -87,7 +126,7 @@ const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewSt
       )}
       
       {/* Portal-based Tooltip */}
-      {showTooltip && isUser && createPortal(
+      {showTooltip && isUser && cachedEvidence.length > 0 && createPortal(
         <div 
           className="fixed px-3 py-2 bg-[#000000] text-[#ffffff] text-xs rounded-lg shadow-lg z-[9999] w-64"
           style={{
@@ -96,47 +135,16 @@ const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewSt
             transform: 'translateY(-100%)'
           }}
         >
-          {messageEvidence.length > 0 && (
-            <div className="space-y-1">
-              {messageEvidence.map((evidence, index) => {
-                console.log('Original evidence:', evidence);
-                
-                // Extract reasoning from formats like:
-                // "Clarity - Message ID 2: 'hi' - The learner's response..."
-                // "Message ID 2: 'hi' - The learner's response..."
-                let reasoning = '';
-                
-                // Look for the last dash in the string and take everything after it
-                const lastDashIndex = evidence.lastIndexOf(' - ');
-                if (lastDashIndex !== -1) {
-                  reasoning = evidence.substring(lastDashIndex + 3).trim(); // +3 to skip " - "
-                  console.log('Found reasoning with last dash pattern:', reasoning);
-                } else {
-                  // Fallback: try to get everything after the first "-" (without space)
-                  const parts = evidence.split('-');
-                  if (parts.length > 1) {
-                    reasoning = parts.slice(1).join('-').trim();
-                    console.log('Fallback reasoning:', reasoning);
-                  } else {
-                    reasoning = evidence;
-                    console.log('Using original evidence:', reasoning);
-                  }
-                }
-                
-                return (
-                  <div key={index} className="flex items-start gap-2">
-                    <span className="text-[#ffffff] font-bold mt-0.5">•</span>
-                    <span className="text-[11px] leading-tight flex-1 text-left">
-                      {reasoning.length > 120 
-                        ? `${reasoning.substring(0, 120)}...` 
-                        : reasoning
-                      }
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <div className="space-y-1">
+            {cachedEvidence.map((reasoning, index) => (
+              <div key={index} className="flex items-start gap-2">
+                <span className="text-[#ffffff] font-bold mt-0.5">•</span>
+                <span className="text-[11px] leading-tight flex-1 text-left">
+                  {reasoning}
+                </span>
+              </div>
+            ))}
+          </div>
           
           {/* Tooltip arrow */}
           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#000000]"></div>

@@ -1,7 +1,7 @@
 import styles from './web-gl-component.module.scss';
 // import cx from 'classnames';
 import * as THREE from 'three';
-import { useEffect, useRef, useState, useCallback, forwardRef } from 'react';
+import { useEffect, useState, useCallback, forwardRef } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Game from './ThreeJSModules/Game.js';
 
@@ -12,11 +12,15 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import PixelatePass from './post-processing/PixelatePass';
 
 import { Vector2 } from 'three';
-import { DuckStates } from './ThreeJSModules/enums';
-import HelloWorldPass from './post-processing/HelloWorldPass.js';
+
+// Global reference to AnimationController for direct access
+declare global {
+  interface Window {
+    duckAnimationController?: any;
+  }
+}
 
 export interface WebGLComponentProps {
-    nextState?: DuckStates;
     aiEvaluation?: {
         clarity: number;
         accuracy: number;
@@ -28,7 +32,7 @@ export interface WebGLComponentProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({ nextState, aiEvaluation }, ref) => {
+export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({ aiEvaluation }, ref) => {
     const [progress1, setProgress1] = useState(0);
     const [progress2, setProgress2] = useState(0);
     const [progress3, setProgress3] = useState(0);
@@ -145,8 +149,6 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
         const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
         composer.addPass(bloomPass);
         const pixelatePass = new PixelatePass(renderResolution);
-        const helloWorldPass = new HelloWorldPass();
-        // composer.addPass(helloWorldPass);
         composer.addPass(pixelatePass);
 
         // Controls
@@ -175,6 +177,11 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
         const game = new Game(scene, camera, renderer);
         game.init();
 
+        // Set global reference to AnimationController for direct access
+        if (game.player?.animationController) {
+            window.duckAnimationController = game.player.animationController;
+        }
+
         let animationId: number;
         const clock = new THREE.Clock();
         let delta = 0;
@@ -188,10 +195,6 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
             game.update(delta);
 
             composer.render();
-
-            if (nextState) {
-                game.player?.animationController?.setNextAnimationState(nextState);
-            }
         }
 
         animate();
@@ -205,6 +208,9 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
 
             // Remove event listeners
             window.removeEventListener('resize', handleResize);
+
+            // Clear global AnimationController reference
+            window.duckAnimationController = undefined;
 
             // Dispose of controls
             controls.dispose();
@@ -237,7 +243,7 @@ export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>(({
                 scene.clear();
             }
         };
-    }, [nextState]);
+    }, []);
 
     return (
         <div ref={ref} className={styles.webglcomponent}>

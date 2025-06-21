@@ -52,8 +52,6 @@ const Layout: React.FC<LayoutProps> = ({
   // Ref for fullscreen
   const layoutRef = useRef<HTMLDivElement>(null);
   const webglRef = useRef<HTMLDivElement>(null);
-  // State for fullscreen mode
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // NavBar autohide state
   const [navBarVisible, setNavBarVisible] = useState(true);
@@ -82,18 +80,6 @@ const Layout: React.FC<LayoutProps> = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    };
-  }, []);
-
-  // Fullscreen change listener
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -149,14 +135,12 @@ const Layout: React.FC<LayoutProps> = ({
     if (!document.fullscreenElement) {
       // Enter fullscreen
       webglElement.requestFullscreen().then(() => {
-        setIsFullscreen(true);
       }).catch(err => {
         console.error('Error entering fullscreen:', err);
       });
     } else {
       // Exit fullscreen
       document.exitFullscreen().then(() => {
-        setIsFullscreen(false);
       }).catch(err => {
         console.error('Error exiting fullscreen:', err);
       });
@@ -215,7 +199,7 @@ const Layout: React.FC<LayoutProps> = ({
       
       <div className={styles.mainContent} style={{
         backgroundColor: useNewChatStyle ? '#f6f6e9' : '#e0e0e0',
-        border: useNewChatStyle ? '2px solid #000' : '2px solid #ccc'
+        border: useNewChatStyle ? '1px solid #000' : '1px solid #ccc'
       }}>
         {children}
       </div>
