@@ -30,12 +30,12 @@ export default class Duck extends Group {
             this.glTFLoader.loadAsync('models/Duck_Anim_IdleToLay.glb'),
             this.glTFLoader.loadAsync('models/Duck_Anim_Lay.glb'),
             this.glTFLoader.loadAsync('models/Duck_Anim_LayToIdle.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_Run.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_RunLeft.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_RunRight.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_Walk.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_WalkLeft.glb'),
-            this.glTFLoader.loadAsync('public/models/Duck_Anim_WalkRight.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_Run.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_RunLeft.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_RunRight.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_Walk.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_WalkLeft.glb'),
+            this.glTFLoader.loadAsync('models/Duck_Anim_WalkRight.glb'),
         ]);
         duck.scene.traverse((m) => {
             if ((m as Mesh).isMesh) {
