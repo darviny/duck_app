@@ -4,7 +4,6 @@ import NavBar from '../NavBar/NavBar';
 import ToolBar from '../ToolBar/ToolBar';
 import { WebGLComponent } from '../web-gl-component/web-gl-component';
 import TodoList from '../TodoList/TodoList';
-import { PopUpModalComponent } from '../pop-up-modal-component/pop-up-modal-component';
 import styles from './Layout.module.scss';
 
 // Make children optional
@@ -228,8 +227,14 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Help Modal */}
       {showHelp && (
         <div style={{ position: 'fixed', zIndex: 10000, top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.4)' }} onClick={handleCloseHelp}>
-          <div style={{ position: 'relative', width: 'fit-content', margin: '60px auto' }} onClick={e => e.stopPropagation()}>
-            <PopUpModalComponent onClose={handleCloseHelp} />
+          <div style={{ position: 'relative', width: 'fit-content', margin: '60px auto', background: 'white', padding: '20px', borderRadius: '8px', maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+            <h2>Help</h2>
+            <p>Welcome to Darwin the Duck! This is an AI-powered learning assistant.</p>
+            <p>Use the navigation bar on the left to start a new conversation or access different features.</p>
+            <p>The toolbar at the top provides additional controls and settings.</p>
+            <button onClick={handleCloseHelp} style={{ marginTop: '10px', padding: '8px 16px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              Close
+            </button>
           </div>
         </div>
       )}

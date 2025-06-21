@@ -1,6 +1,0 @@
-src/components/Layout/Layout.tsx(9,1): error TS6133: 'DuckStates' is declared but its value is never read.
-src/components/Layout/Layout.tsx(57,10): error TS6133: 'isFullscreen' is declared but its value is never read.
-src/components/Message.tsx(1,35): error TS6133: 'useEffect' is declared but its value is never read.
-src/components/web-gl-component/web-gl-component.tsx(4,21): error TS6133: 'useRef' is declared but its value is never read.
-src/components/web-gl-component/web-gl-component.tsx(15,1): error TS6133: 'DuckStates' is declared but its value is never read.
-src/components/web-gl-component/web-gl-component.tsx(154,15): error TS6133: 'helloWorldPass' is declared but its value is never read.

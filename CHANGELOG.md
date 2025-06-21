@@ -7,14 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Test components and utilities for leaner codebase
+
+### Changed
+- Updated component exports to remove test components
+
 ### Build
-- **Build**: Fixed TypeScript CI failures by adding Node typings, migrating `require` to ES imports, enforcing local type-checks.
+- Fixed TypeScript CI failures by adding Node typings, migrating `require` to ES imports, enforcing local type-checks.
 
 ## [0.1.0] - 2024-01-01
 
 ### Added
-- Initial project setup
-- React + Vite + TypeScript configuration
+- Initial project setup with React + Vite + TypeScript configuration
 - AWS Amplify integration
 - 3D duck animation with Three.js
 - AI evaluation tooltips
