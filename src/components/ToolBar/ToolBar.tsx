@@ -3,62 +3,77 @@ import styles from './ToolBar.module.scss';
 import { 
   helpIcon, 
   arrowsOutputIcon, 
-  pauseCircleIcon, 
-  playCircleIcon, 
-  stopCircleIcon,
   duckIcon
 } from '../../assets/index';
+import { ToolBarProps } from '../../types/components';
 
-interface ToolBarProps {
-  onHelp?: () => void;
-  onPlay?: () => void;
-  onPause?: () => void;
-  onStop?: () => void;
-  showPlaybackControls?: boolean;
-  useNewChatStyle?: boolean;
-  onToggleChatStyle?: () => void;
-  onToggleQuackMode?: () => void;
-  quackMode?: boolean;
-  webglRef?: React.RefObject<HTMLDivElement>;
-}
+// Extracted fullscreen handler function
+const handleFullScreen = (webglRef?: React.RefObject<HTMLDivElement>) => {
+  const webglElement = webglRef?.current;
+  if (!webglElement) return;
+  
+  if (!document.fullscreenElement) {
+    // Enter fullscreen
+    webglElement.requestFullscreen().catch(err => {
+      console.error('Error entering fullscreen:', err);
+    });
+  } else {
+    // Exit fullscreen
+    document.exitFullscreen().catch(err => {
+      console.error('Error exiting fullscreen:', err);
+    });
+  }
+};
 
 const ToolBar: React.FC<ToolBarProps> = ({
   onHelp,
-  onPlay,
-  onPause,
-  onStop,
-  showPlaybackControls = false,
   useNewChatStyle = false,
   onToggleChatStyle,
   onToggleQuackMode,
   quackMode = false,
   webglRef
 }) => {
-  const handleFullScreen = () => {
-    const webglElement = webglRef?.current;
-    if (!webglElement) return;
-    
-    if (!document.fullscreenElement) {
-      // Enter fullscreen
-      webglElement.requestFullscreen().then(() => {
-      }).catch(err => {
-        console.error('Error entering fullscreen:', err);
-      });
-    } else {
-      // Exit fullscreen
-      document.exitFullscreen().then(() => {
-      }).catch(err => {
-        console.error('Error exiting fullscreen:', err);
-      });
-    }
-  };
-
   return (
     <header className={styles.toolBar} role="banner" aria-label="Tool bar">
       <div className={styles.toolBarBg}>
         <div className={styles.toolsIcon}>
-          {/* Left Controls - Duck Icon and Playback Controls (optional) */}
+          {/* Left Controls - Empty for now */}
           <div className={styles.leftControls}>
+          </div>
+          
+          {/* Right Controls - Help, Full Screen, and Duck Icon */}
+          <div className={styles.rightControls}>
+            <button
+              className={styles.helpIcon}
+              onClick={onHelp}
+              aria-label="Help"
+            >
+              <img 
+                src={helpIcon} 
+                alt="Help" 
+                className={styles.controlIcon}
+              />
+            </button>
+            <button
+              className={styles.arrowsOutputIcon}
+              onClick={() => handleFullScreen(webglRef)}
+              aria-label="Full screen"
+            >
+              <img 
+                src={arrowsOutputIcon} 
+                alt="Full screen" 
+                className={styles.controlIcon}
+              />
+            </button>
+            {onToggleChatStyle && (
+              <button
+                className={`${styles.chatStyleToggle} ${useNewChatStyle ? styles.newStyle : ''}`}
+                onClick={onToggleChatStyle}
+                aria-label="Toggle chat style"
+              >
+                Toggle
+              </button>
+            )}
             <button
               className={`${styles.duckIcon} ${quackMode ? styles.quackMode : ''}`}
               onClick={() => {
@@ -78,88 +93,6 @@ const ToolBar: React.FC<ToolBarProps> = ({
                 className={styles.controlIcon}
               />
             </button>
-            {showPlaybackControls && (
-              <>
-                <button
-                  className={styles.stopCircleIcon}
-                  onClick={onStop}
-                  aria-label="Stop"
-                >
-                  <img 
-                    src={stopCircleIcon} 
-                    alt="Stop" 
-                    className={styles.controlIcon}
-                  />
-                </button>
-                <button
-                  className={styles.playCircleIcon}
-                  onClick={onPlay}
-                  aria-label="Play"
-                >
-                  <img 
-                    src={playCircleIcon} 
-                    alt="Play" 
-                    className={styles.controlIcon}
-                  />
-                </button>
-                <button
-                  className={styles.pauseCircleIcon}
-                  onClick={onPause}
-                  aria-label="Pause"
-                >
-                  <img 
-                    src={pauseCircleIcon} 
-                    alt="Pause" 
-                    className={styles.controlIcon}
-                  />
-                </button>
-              </>
-            )}
-          </div>
-          
-          {/* Right Controls - Help and Full Screen */}
-          <div className={styles.rightControls}>
-            <button
-              className={styles.helpIcon}
-              onClick={onHelp}
-              aria-label="Help"
-            >
-              <img 
-                src={helpIcon} 
-                alt="Help" 
-                className={styles.controlIcon}
-              />
-            </button>
-            <button
-              className={styles.arrowsOutputIcon}
-              onClick={handleFullScreen}
-              aria-label="Full screen"
-            >
-              <img 
-                src={arrowsOutputIcon} 
-                alt="Full screen" 
-                className={styles.controlIcon}
-              />
-            </button>
-            {onToggleChatStyle && (
-              <button
-                className={styles.chatStyleToggle}
-                onClick={onToggleChatStyle}
-                aria-label="Toggle chat style"
-                style={{
-                  background: useNewChatStyle ? '#272727' : '#f6f6e9',
-                  color: useNewChatStyle ? '#ffffff' : '#000000',
-                  padding: '8px 12px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  marginLeft: '10px'
-                }}
-              >
-                Toggle
-              </button>
-            )}
           </div>
         </div>
       </div>

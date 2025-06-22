@@ -430,10 +430,6 @@ function App() {
         <div className={styles.toolBarContainer}>
           <ToolBar
             onHelp={handleHelp}
-            onPlay={() => console.log('Play clicked')}
-            onPause={() => console.log('Pause clicked')}
-            onStop={() => console.log('Stop clicked')}
-            showPlaybackControls={false}
             useNewChatStyle={useNewChatStyle}
             onToggleChatStyle={handleToggleChatStyle}
             onToggleQuackMode={handleToggleQuackMode}
