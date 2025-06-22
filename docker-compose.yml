@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Development service
+  duck-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    profiles:
+      - dev
+
+  # Production service
+  duck-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    profiles:
+      - prod
+
+  # Alternative production service with custom port
+  duck-app-custom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    profiles:
+      - prod-custom
+
+  # Alternative production service using Dockerfile.prod
+  duck-app-prod-alt:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    profiles:
+      - prod-alt 
