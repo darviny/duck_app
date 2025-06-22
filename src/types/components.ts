@@ -20,11 +20,11 @@ export interface NavBarProps extends BaseComponentProps {
 // Toolbar component props
 export interface ToolBarProps extends BaseComponentProps {
   onHelp?: () => void;
-  onFullScreen?: () => void;
-  onPlay?: () => void;
-  onPause?: () => void;
-  onStop?: () => void;
-  showPlaybackControls?: boolean;
+  useNewChatStyle?: boolean;
+  onToggleChatStyle?: () => void;
+  onToggleQuackMode?: () => void;
+  quackMode?: boolean;
+  webglRef?: React.RefObject<HTMLDivElement>;
 }
 
 // Stat Panel component props
