@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './NavBar.module.scss';
 import { 
   logoIcon, 
@@ -8,9 +8,23 @@ import {
   iconSettings 
 } from '../../assets/index';
 
+interface User {
+  // AWS Amplify getCurrentUser() properties
+  userId: string;
+  username: string;
+  
+  // AWS Amplify fetchUserAttributes() properties
+  attributes?: {
+    email?: string;
+    email_verified?: boolean;
+    sub?: string;
+    [key: string]: any; // Allow for other potential attributes
+  };
+}
+
 interface NavBarProps {
   isAuthenticated?: boolean;
-  user?: any;
+  user?: User;
   onSignIn?: () => void;
   onSignOut?: () => void;
   onNewDuck?: () => void;
@@ -19,8 +33,38 @@ interface NavBarProps {
   onSettings?: () => void;
 }
 
+interface NavigationLinkProps {
+  icon: string;
+  text: string;
+  onClick?: () => void;
+  ariaLabel: string;
+}
+
 const AUTOHIDE_DELAY = 1000; // ms
-const EDGE_TRIGGER_WIDTH = 64; // px
+const EDGE_TRIGGER_PERCENTAGE = 5; // 5% of screen width
+const INITIAL_SHOW_DURATION = 1000; // ms
+
+// Reusable Navigation Link Component
+const NavigationLink: React.FC<NavigationLinkProps> = ({ icon, text, onClick, ariaLabel }) => (
+  <li className={styles.navItem}>
+    <a 
+      href="#" 
+      className={styles.navLink}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.();
+      }}
+      aria-label={ariaLabel}
+    >
+      <img 
+        src={icon} 
+        alt={text} 
+        className={styles.navIcon}
+      />
+      <span className={styles.navText}>{text}</span>
+    </a>
+  </li>
+);
 
 const NavBar: React.FC<NavBarProps> = ({
   isAuthenticated = false,
@@ -35,18 +79,34 @@ const NavBar: React.FC<NavBarProps> = ({
   // Auto-hide state management
   const [isVisible, setIsVisible] = useState(true);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isNearBoundary = useRef(false);
 
-  // Auto-hide logic
+  // Show navbar for 1 second on initial load, then hide it
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // If mouse is near the left edge, show NavBar
-      if (e.clientX <= EDGE_TRIGGER_WIDTH) {
+    const initialHideTimer = setTimeout(() => {
+      setIsVisible(false);
+    }, INITIAL_SHOW_DURATION);
+
+    return () => {
+      clearTimeout(initialHideTimer);
+    };
+  }, []);
+
+  // Boundary detection mouse move handler
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const edgeTriggerWidth = (window.innerWidth * EDGE_TRIGGER_PERCENTAGE) / 100;
+    const nearBoundary = e.clientX <= edgeTriggerWidth;
+    
+    // Only process if crossing the boundary or already near it
+    if (nearBoundary !== isNearBoundary.current || nearBoundary) {
+      isNearBoundary.current = nearBoundary;
+      
+      if (nearBoundary) {
         setIsVisible(true);
         if (hideTimeoutRef.current) {
           clearTimeout(hideTimeoutRef.current);
         }
       } else {
-        // Reset hide timer
         if (hideTimeoutRef.current) {
           clearTimeout(hideTimeoutRef.current);
         }
@@ -54,26 +114,45 @@ const NavBar: React.FC<NavBarProps> = ({
           setIsVisible(false);
         }, AUTOHIDE_DELAY);
       }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    };
+    }
   }, []);
 
+  // Window resize handler to update boundary calculations
+  const handleWindowResize = useCallback(() => {
+    // If navbar is currently hidden, check if mouse is now in boundary area
+    // This prevents the navbar from staying hidden if resize puts mouse in boundary
+    if (!isVisible && isNearBoundary.current) {
+      // Mouse was in boundary before resize, ensure navbar stays visible
+      setIsVisible(true);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    }
+  }, [isVisible]);
+
+  // Auto-hide logic with boundary detection and resize handling
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleWindowResize);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleWindowResize);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, [handleMouseMove, handleWindowResize]);
+
   // Show NavBar on hover
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
     setIsVisible(true);
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     hideTimeoutRef.current = setTimeout(() => {
       setIsVisible(false);
     }, AUTOHIDE_DELAY);
-  };
+  }, []);
 
   return (
     <nav 
@@ -99,78 +178,30 @@ const NavBar: React.FC<NavBarProps> = ({
       <div className={styles.navigationLinks}>
         <div className={styles.linksContainer}>
           <ul className={styles.navList}>
-            <li className={styles.navItem}>
-              <a 
-                href="#" 
-                className={styles.navLink}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onNewDuck?.();
-                }}
-                aria-label="Create new duck"
-              >
-                <img 
-                  src={iconNewduck} 
-                  alt="New Duck" 
-                  className={styles.navIcon}
-                />
-                <span className={styles.navText}>New Duck</span>
-              </a>
-            </li>
-            <li className={styles.navItem}>
-              <a 
-                href="#" 
-                className={styles.navLink}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onCourses?.();
-                }}
-                aria-label="Courses"
-              >
-                <img 
-                  src={iconCourses} 
-                  alt="Courses" 
-                  className={styles.navIcon}
-                />
-                <span className={styles.navText}>Courses</span>
-              </a>
-            </li>
-            <li className={styles.navItem}>
-              <a 
-                href="#" 
-                className={styles.navLink}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onStudyPlan?.();
-                }}
-                aria-label="Study Plan"
-              >
-                <img 
-                  src={iconStudyplan} 
-                  alt="Study Plan" 
-                  className={styles.navIcon}
-                />
-                <span className={styles.navText}>Study Plan</span>
-              </a>
-            </li>
-            <li className={styles.navItem}>
-              <a 
-                href="#" 
-                className={styles.navLink}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onSettings?.();
-                }}
-                aria-label="Settings"
-              >
-                <img 
-                  src={iconSettings} 
-                  alt="Settings" 
-                  className={styles.navIcon}
-                />
-                <span className={styles.navText}>Settings</span>
-              </a>
-            </li>
+            <NavigationLink 
+              icon={iconNewduck} 
+              text="New Duck" 
+              onClick={onNewDuck} 
+              ariaLabel="Create new duck"
+            />
+            <NavigationLink 
+              icon={iconCourses} 
+              text="Courses" 
+              onClick={onCourses} 
+              ariaLabel="Courses"
+            />
+            <NavigationLink 
+              icon={iconStudyplan} 
+              text="Study Plan" 
+              onClick={onStudyPlan} 
+              ariaLabel="Study Plan"
+            />
+            <NavigationLink 
+              icon={iconSettings} 
+              text="Settings" 
+              onClick={onSettings} 
+              ariaLabel="Settings"
+            />
           </ul>
         </div>
       </div>
@@ -206,4 +237,4 @@ const NavBar: React.FC<NavBarProps> = ({
   );
 };
 
-export default NavBar; 
+export default NavBar;
