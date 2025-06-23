@@ -1,25 +1,72 @@
-## AWS Amplify React+Vite Starter Template
+# Darwin the Duck 🦆
 
-This repository provides a starter template for creating applications using React+Vite and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
+**Learn by teaching Darwin the Duck - where AI becomes your student, not your tutor.**
 
-## Overview
+Darwin the Duck is an AI-powered learning companion that flips the traditional AI tutoring model on its head. Instead of asking AI to teach you, you become the teacher - explaining concepts to Darwin, a curious AI student who doesn't know much about your subject. This leverages the scientifically-proven Protégé Effect, where teaching others actually helps you learn better.
 
-This template equips you with a foundational React application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
+## 🎯 What it does
 
-## Features
+**AI-Powered Learning Through Teaching**
+Darwin the Duck transforms you from a passive learner into an active teacher. Instead of receiving information from AI, you explain concepts to Darwin - a curious AI student who doesn't know much about your subject.
 
-- **Authentication**: Setup with Amazon Cognito for secure user authentication.
-- **API**: Ready-to-use GraphQL endpoint with AWS AppSync.
-- **Database**: Real-time database powered by Amazon DynamoDB.
+**Real-Time Teaching Evaluation**
+Our dual-AI system continuously evaluates your teaching effectiveness. After each explanation, you receive feedback on clarity, accuracy, engagement, and suggestions for improvement.
 
-## Deploying to AWS
+**Gamified Learning Experience**
+Darwin has emotional states, energy levels, and understanding meters that update in real-time. The 3D duck responds to your teaching quality, making learning feel personal and engaging.
 
-For detailed instructions on deploying your application, refer to the [deployment section](https://docs.amplify.aws/react/start/quickstart/#deploy-a-fullstack-app-to-aws) of our documentation.
+**Topic-Flexible Learning**
+Choose from predefined subjects or create custom topics. Whether you're learning linear algebra, programming concepts, or historical events, Darwin adapts to be your eager student.
 
-## Security
+**Evidence-Based Learning**
+Leveraging the scientifically-proven Protégé Effect, the system ensures you're not just memorizing - you're truly understanding and internalizing concepts through the act of teaching.
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+**Personalized Study Companion**
+Darwin remembers your teaching style and adapts questions to challenge your understanding at the right level, creating a personalized learning journey that grows with you.
 
-## License
+## 🚀 Getting Started
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- AWS account (for deployment)
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone https://github.com/your-username/darwin-the-duck.git
+cd darwin-the-duck
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Set up AWS Amplify
+```bash
+amplify init
+amplify push
+```
+
+4. Start the development server
+```bash
+npm run dev
+```
+
+## 📝 License
+
+This project is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [CONTRIBUTING](CONTRIBUTING.md) guide for details on how to submit pull requests, report issues, and contribute to the project.
+
+## 📞 Contact
+
+For questions, feedback, or support, please open an issue on GitHub or contact our team.
+
+---
+
+**Darwin the Duck** - Where the best way to learn is to teach! 🦆✨
