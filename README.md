@@ -1,6 +1,10 @@
 # Darwin the Duck 🦆
 
-**Team**
+**Learn by teaching Darwin the Duck - where AI becomes your student, not your tutor.**
+
+Darwin the Duck is an AI-powered learning companion that flips the traditional AI tutoring model on its head. Instead of asking AI to teach you, you become the teacher - explaining concepts to Darwin, a curious AI student who doesn't know much about your subject. This leverages the scientifically-proven Protégé Effect, where teaching others actually helps you learn better.
+
+## 😎 Team ##
 
 Natalie: Project Manager, Frontend(React), Cybersecurity, Sound Actor
 
@@ -9,10 +13,6 @@ Paul: Frontend(React), UI Design, 3D Model(three.js), Video Producer
 Kevin: Frontend(React)
 
 Darvin: Prompt Engineering, Frontend(React), Backend(AWS Amplify)
-
-**Learn by teaching Darwin the Duck - where AI becomes your student, not your tutor.**
-
-Darwin the Duck is an AI-powered learning companion that flips the traditional AI tutoring model on its head. Instead of asking AI to teach you, you become the teacher - explaining concepts to Darwin, a curious AI student who doesn't know much about your subject. This leverages the scientifically-proven Protégé Effect, where teaching others actually helps you learn better.
 
 ## 🎯 What it does
 
