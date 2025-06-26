@@ -1,19 +1,12 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-
-interface AIEvaluationData {
-  clarity: number;
-  accuracy: number;
-  engagement: number;
-  suggestions: string[];
-  evidence: string[];
-  overall_comment: string;
-}
+import { AIEvaluationData } from '../types/chat';
 
 interface AIEvaluationContextType {
   aiEvaluation: AIEvaluationData;
   setAiEvaluation: (data: AIEvaluationData) => void;
   onEvaluate?: () => void;
   isEvaluating: boolean;
+  hasEvaluation: boolean;
 }
 
 const AIEvaluationContext = createContext<AIEvaluationContextType | undefined>(undefined);
@@ -24,6 +17,7 @@ interface AIEvaluationProviderProps {
   setAiEvaluation: (data: AIEvaluationData) => void;
   onEvaluate?: () => void;
   isEvaluating: boolean;
+  hasEvaluation?: boolean;
 }
 
 export const AIEvaluationProvider: React.FC<AIEvaluationProviderProps> = ({ 
@@ -31,19 +25,26 @@ export const AIEvaluationProvider: React.FC<AIEvaluationProviderProps> = ({
   aiEvaluation, 
   setAiEvaluation,
   onEvaluate,
-  isEvaluating
+  isEvaluating,
+  hasEvaluation = false
 }) => {
   return (
-    <AIEvaluationContext.Provider value={{ aiEvaluation, setAiEvaluation, onEvaluate, isEvaluating }}>
+    <AIEvaluationContext.Provider value={{ 
+      aiEvaluation, 
+      setAiEvaluation, 
+      onEvaluate, 
+      isEvaluating,
+      hasEvaluation
+    }}>
       {children}
     </AIEvaluationContext.Provider>
   );
 };
 
-export const useAIEvaluation = (): AIEvaluationContextType => {
+export const useAIEvaluationContext = (): AIEvaluationContextType => {
   const context = useContext(AIEvaluationContext);
   if (context === undefined) {
-    throw new Error('useAIEvaluation must be used within an AIEvaluationProvider');
+    throw new Error('useAIEvaluationContext must be used within an AIEvaluationProvider');
   }
   return context;
 }; 

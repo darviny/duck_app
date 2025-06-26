@@ -2,25 +2,10 @@ import React, { useRef, useEffect, useMemo } from 'react';
 import Message from './Message';
 import InputBox from './InputBox';
 import styles from './ChatInterface.module.scss';
-
-interface Message {
-  id: number;
-  sender: string;
-  content: string;
-  isUser: boolean;
-}
-
-interface AIEvaluationData {
-  clarity: number;
-  accuracy: number;
-  engagement: number;
-  suggestions: string[];
-  evidence: string[];
-  overall_comment: string;
-}
+import { Message as MessageType, AIEvaluationData } from '../types/chat';
 
 interface ChatInterfaceProps {
-  messages: Message[];
+  messages: MessageType[];
   inputValue: string;
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
@@ -56,9 +41,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   // Find the latest user message ID
-  const latestUserMessageId = useMemo(() => {
-    const userMessages = messages.filter(msg => msg.isUser);
-    return userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
+  const latestUserMessageId = useMemo((): string | null => {
+    // Use reverse loop for better performance - stops at first match
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].isUser) {
+        return messages[i].id;
+      }
+    }
+    return null;
   }, [messages]);
 
   return (

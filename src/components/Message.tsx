@@ -1,21 +1,15 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { AIEvaluationData } from '../types/chat';
 
 interface MessageProps {
-  id: number;
+  id: string;
   sender: string;
   content: string;
   isUser: boolean;
   useNewStyle?: boolean;
   isLatestUserMessage?: boolean;
-  aiEvaluation?: {
-    clarity: number;
-    accuracy: number;
-    engagement: number;
-    suggestions: string[];
-    evidence: string[];
-    overall_comment: string;
-  };
+  aiEvaluation?: AIEvaluationData;
 }
 
 const Message: React.FC<MessageProps> = ({ id, sender, content, isUser, useNewStyle = false, isLatestUserMessage = false, aiEvaluation }) => {

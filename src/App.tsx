@@ -2,8 +2,7 @@ import './App.css';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../amplify/data/resource';
-import { getCurrentUser, signIn, signOut, fetchUserAttributes } from 'aws-amplify/auth';
-import { createAIHooks } from "@aws-amplify/ui-react-ai";
+import { getCurrentUser, signIn, signOut } from 'aws-amplify/auth';
 import NavBar from './components/NavBar/NavBar';
 import ToolBar from './components/ToolBar/ToolBar';
 import ChatInterface from './components/ChatInterface';
@@ -14,6 +13,8 @@ import styles from './App.module.scss';
 import HelpModal from './components/HelpModal';
 import { WebGLComponent } from './components/web-gl-component/web-gl-component';
 import Rubric from './components/Rubric/Rubric';
+import { useAIEvaluation } from './hooks/useAIEvaluation';
+import { Message } from './types/chat';
 
 // Global reference to AnimationController
 declare global {
@@ -23,23 +24,6 @@ declare global {
 }
 
 const client = generateClient<Schema>();
-const { useAIGeneration } = createAIHooks(client);
-
-interface Message {
-  id: number;
-  sender: string;
-  content: string;
-  isUser: boolean;
-}
-
-interface AIEvaluationData {
-  clarity: number;
-  accuracy: number;
-  engagement: number;
-  suggestions: string[];
-  evidence: string[];
-  overall_comment: string;
-}
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -53,21 +37,28 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [useNewChatStyle, setUseNewChatStyle] = useState(false);
   const [quackMode, setQuackMode] = useState(false);
-  const [aiEvaluation, setAiEvaluation] = useState<AIEvaluationData>({
-    clarity: 0,
-    accuracy: 0,
-    engagement: 0,
-    suggestions: [],
-    evidence: [],
-    overall_comment: ''
-  });
   const initializedRef = useRef(false);
   const accumulatedTextRef = useRef('');
   const shouldEvaluateRef = useRef(false);
   const quackModeRef = useRef(quackMode);
   const webglRef = useRef(null);
 
-  const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+  // Use the decoupled AI evaluation hook
+  const {
+    aiEvaluation,
+    setAiEvaluation,
+    evaluateMessages,
+    resetEvaluation,
+    isEvaluating: aiLoading,
+    hasEvaluation
+  } = useAIEvaluation({
+    onEvaluationComplete: (evaluation) => {
+      console.log('AI Evaluation completed:', evaluation);
+    },
+    onEvaluationError: (error) => {
+      console.error('AI Evaluation error:', error);
+    }
+  });
 
   // State for Help modal
   const [showHelp, setShowHelp] = useState(false);
@@ -106,46 +97,13 @@ function App() {
     return { action: DuckStates.IDLE, cleanMessage: message };
   };
 
-  const handleEvaluateWithMessages = useCallback(async (messagesToEvaluate: Message[]) => {
-    if (messagesToEvaluate.length === 0) {
-      console.log('No messages to evaluate');
-      return;
-    }
-    
-    console.log('Starting AI evaluation with provided messages...');
-    console.log('Messages to evaluate:', messagesToEvaluate);
-    
-    const transcript = JSON.stringify({
-      session_id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      topic: currentTopic,
-      subject: currentSubject,
-      transcript: messagesToEvaluate.map(msg => ({
-        id: msg.id,
-        sender: msg.sender,
-        content: msg.content,
-        isUser: msg.isUser
-      }))
-    });
-
-    console.log('Transcript being analyzed:', transcript);
-    
-    try {
-      const result = await analyzeTranscript({ transcript });
-      console.log('Analyze transcript result:', result);
-    } catch (error) {
-      console.error('Error calling analyzeTranscript:', error);
-    }
-  }, [currentTopic, currentSubject, analyzeTranscript]);
-
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const currentUser = await getCurrentUser();
-        const attributes = await fetchUserAttributes();
         setIsAuthenticated(true);
-        setUser({ ...currentUser, attributes });
+        setUser(currentUser);
       } catch (error) {
         setIsAuthenticated(false);
         setUser(null);
@@ -153,29 +111,6 @@ function App() {
     };
     checkAuth();
   }, []);
-
-  // Update AI evaluation when data changes
-  useEffect(() => {
-    console.log('AI Data received:', aiData);
-    console.log('AI Loading state:', aiLoading);
-    
-    if (aiData) {
-      console.log('Processing AI evaluation data:', JSON.stringify(aiData, null, 2));
-      setAiEvaluation({
-        clarity: aiData.clarity ?? 0,
-        accuracy: aiData.accuracy ?? 0,
-        engagement: aiData.engagement ?? 0,
-        suggestions: (aiData.suggestions ?? []).filter((s): s is string => s !== null),
-        evidence: (aiData.evidence ?? []).filter((e): e is string => e !== null),
-        overall_comment: aiData.overall_comment ?? ''
-      });
-      console.log('AI Evaluation state updated:', {
-        clarity: aiData.clarity ?? 0,
-        accuracy: aiData.accuracy ?? 0,
-        engagement: aiData.engagement ?? 0
-      });
-    }
-  }, [aiData, aiLoading]);
 
   // Initialize chat when authenticated
   useEffect(() => {
@@ -222,10 +157,11 @@ function App() {
                     }
                     
                     const updatedMessages = [...prev, {
-                      id: prev.length + 1,
+                      id: Date.now().toString(),
                       sender: 'Darwin the Duck',
-                      content: quackModeRef.current ? `${cleanMessage} Quack!` : cleanMessage, // Append "Quack!" if quack mode is enabled
-                      isUser: false
+                      content: quackModeRef.current ? `${cleanMessage} Quack!` : cleanMessage,
+                      isUser: false,
+                      timestamp: new Date()
                     }];
                     
                     // Log if quack mode modified the message
@@ -241,7 +177,7 @@ function App() {
                     if (shouldEvaluateRef.current) {
                       setTimeout(async () => {
                         console.log('Auto-evaluating after AI response...');
-                        handleEvaluateWithMessages(updatedMessages);
+                        await evaluateMessages(updatedMessages, currentTopic, currentSubject);
                       }, 1000);
                       shouldEvaluateRef.current = false; // Reset the flag
                     }
@@ -277,7 +213,7 @@ function App() {
     };
 
     initializeChat();
-  }, [isAuthenticated, currentTopic, currentSubject, handleEvaluateWithMessages, quackMode]);
+  }, [isAuthenticated, currentTopic, currentSubject, evaluateMessages, quackMode]);
 
   const handleTopicChange = async (topic: string, subject: string) => {
     setCurrentTopic(topic);
@@ -290,15 +226,8 @@ function App() {
     setChat(null);
     shouldEvaluateRef.current = false; // Reset evaluation flag
     
-    // Reset AI evaluation to original state
-    setAiEvaluation({
-      clarity: 0,
-      accuracy: 0,
-      engagement: 0,
-      suggestions: [],
-      evidence: [],
-      overall_comment: ''
-    });
+    // Reset AI evaluation
+    resetEvaluation();
     
     // Re-initialize will happen in useEffect
   };
@@ -307,10 +236,11 @@ function App() {
     if (!inputValue.trim() || !chat || isLoading) return;
     
     const newMessage: Message = {
-      id: messages.length + 1,
+      id: Date.now().toString(),
       sender: 'You',
       content: inputValue,
-      isUser: true
+      isUser: true,
+      timestamp: new Date()
     };
     
     setMessages(prev => [...prev, newMessage]);
@@ -379,27 +309,7 @@ function App() {
     console.log('Starting AI evaluation...');
     console.log('Current messages:', messages);
     
-    const transcript = JSON.stringify({
-      session_id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      topic: currentTopic,
-      subject: currentSubject,
-      transcript: messages.map(msg => ({
-        id: msg.id,
-        sender: msg.sender,
-        content: msg.content,
-        isUser: msg.isUser
-      }))
-    });
-
-    console.log('Transcript being analyzed:', transcript);
-    
-    try {
-      const result = await analyzeTranscript({ transcript });
-      console.log('Analyze transcript result:', result);
-    } catch (error) {
-      console.error('Error calling analyzeTranscript:', error);
-    }
+    await evaluateMessages(messages, currentTopic, currentSubject);
   };
 
   // ToolBar handlers
@@ -412,6 +322,7 @@ function App() {
       setAiEvaluation={setAiEvaluation}
       onEvaluate={handleEvaluate}
       isEvaluating={aiLoading}
+      hasEvaluation={hasEvaluation}
     >
       <div className={styles.appContainer} style={{ fontFamily: 'DM Sans, sans-serif', backgroundColor: 'var(--background)' }}>
         <div className={styles.navBarContainer}>
