@@ -1,0 +1,19 @@
+.chatMessagesContainer {
+  // Responsive max-height that adapts to different screen sizes
+  max-height: calc(100vh - 300px);
+  
+  // For smaller screens, adjust the height constraint
+  @media (max-height: 600px) {
+    max-height: calc(100vh - 200px);
+  }
+  
+  // For larger screens, provide more space for messages
+  @media (min-height: 900px) {
+    max-height: calc(100vh - 350px);
+  }
+  
+  // For mobile devices, adjust for smaller viewport
+  @media (max-width: 768px) {
+    max-height: calc(100vh - 250px);
+  }
+} 

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import Message from './Message';
 import InputBox from './InputBox';
+import styles from './ChatInterface.module.scss';
 
 interface Message {
   id: number;
@@ -37,10 +38,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log('ChatInterface received messages:', messages);
-  }, [messages]);
-
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -65,33 +62,39 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [messages]);
 
   return (
-    <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full h-full">
-      <div className="flex gap-3 p-3 flex-wrap pr-4">
-      </div>
+    <div className="layout-content-container flex flex-col flex-1 max-w-4xl mx-auto w-full h-full min-h-0">
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto min-h-[200px]"
+        className={`flex-1 overflow-y-auto min-h-0 ${styles.chatMessagesContainer}`}
       >
-        {messages.map((message) => (
-          <Message
-            key={message.id}
-            id={message.id}
-            sender={message.sender}
-            content={message.content}
-            isUser={message.isUser}
-            useNewStyle={useNewStyle}
-            aiEvaluation={aiEvaluation}
-            isLatestUserMessage={message.isUser && message.id === latestUserMessageId}
-          />
-        ))}
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No messages yet. Start a conversation!
+          </div>
+        ) : (
+          messages.map((message) => (
+            <Message
+              key={message.id}
+              id={message.id}
+              sender={message.sender}
+              content={message.content}
+              isUser={message.isUser}
+              useNewStyle={useNewStyle}
+              aiEvaluation={aiEvaluation}
+              isLatestUserMessage={message.isUser && message.id === latestUserMessageId}
+            />
+          ))
+        )}
       </div>
-      <InputBox
-        inputValue={inputValue}
-        onInputChange={onInputChange}
-        onSendMessage={onSendMessage}
-        onKeyPress={handleKeyPress}
-        useNewStyle={useNewStyle}
-      />
+      <div className="flex-shrink-0">
+        <InputBox
+          inputValue={inputValue}
+          onInputChange={onInputChange}
+          onSendMessage={onSendMessage}
+          onKeyPress={handleKeyPress}
+          useNewStyle={useNewStyle}
+        />
+      </div>
     </div>
   );
 };
