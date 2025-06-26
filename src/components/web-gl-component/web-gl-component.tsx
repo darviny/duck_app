@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { useAIEvaluation } from '../../contexts/AIEvaluationContext';
+import { useAIEvaluationContext } from '../../contexts/AIEvaluationContext';
 import styles from './web-gl-component.module.scss';
 import Game from './ThreeJSModules/Game';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -24,7 +24,7 @@ export interface WebGLComponentProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const WebGLComponent = forwardRef<HTMLDivElement, WebGLComponentProps>((_, ref) => {
-    const { aiEvaluation } = useAIEvaluation();
+    const { aiEvaluation } = useAIEvaluationContext();
     const [progress1, setProgress1] = useState(0);
     const [progress2, setProgress2] = useState(0);
     const [progress3, setProgress3] = useState(0);

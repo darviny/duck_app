@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../amplify/data/resource';
 import { getCurrentUser, signIn, signOut } from 'aws-amplify/auth';
@@ -37,6 +37,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [useNewChatStyle, setUseNewChatStyle] = useState(false);
   const [quackMode, setQuackMode] = useState(false);
+  const [lastMessageTime, setLastMessageTime] = useState(0);
   const initializedRef = useRef(false);
   const accumulatedTextRef = useRef('');
   const shouldEvaluateRef = useRef(false);
@@ -60,13 +61,19 @@ function App() {
     }
   });
 
+  const evaluateMessagesRef = useRef(evaluateMessages);
+
   // State for Help modal
   const [showHelp, setShowHelp] = useState(false);
 
-  // Update the ref whenever quackMode changes
+  // Update refs when values change
   useEffect(() => {
     quackModeRef.current = quackMode;
   }, [quackMode]);
+
+  useEffect(() => {
+    evaluateMessagesRef.current = evaluateMessages;
+  }, [evaluateMessages]);
 
   // Function to parse action from Darwin's message
   const parseDuckAction = (message: string): { action: DuckStates; cleanMessage: string } => {
@@ -116,6 +123,8 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated || initializedRef.current) return;
     
+    let subscription: any = null;
+    
     const initializeChat = async () => {
       try {
         console.log('Starting chat initialization...');
@@ -125,7 +134,7 @@ function App() {
           console.log('Chat created successfully');
           setChat(newChat);
           
-          const subscription = newChat.onStreamEvent({
+          subscription = newChat.onStreamEvent({
             next: (event) => {
               console.log('Stream event received:', event);
               if (event.text) {
@@ -177,7 +186,7 @@ function App() {
                     if (shouldEvaluateRef.current) {
                       setTimeout(async () => {
                         console.log('Auto-evaluating after AI response...');
-                        await evaluateMessages(updatedMessages, currentTopic, currentSubject);
+                        await evaluateMessagesRef.current(updatedMessages, currentTopic, currentSubject);
                       }, 1000);
                       shouldEvaluateRef.current = false; // Reset the flag
                     }
@@ -193,6 +202,16 @@ function App() {
             },
             error: (error) => {
               console.error('Stream error:', error);
+              
+              // Handle throttling errors specifically
+              if (error.errors && error.errors.some((e: any) => e.errorType === 'ThrottlingException')) {
+                console.log('Rate limit exceeded - please wait before sending more messages');
+                setIsLoading(false);
+                return;
+              }
+              
+              // Handle other errors
+              setIsLoading(false);
             },
           });
 
@@ -205,7 +224,6 @@ function App() {
           console.log('Initial topic message sent, waiting for response...');
           
           initializedRef.current = true;
-          return () => subscription.unsubscribe();
         }
       } catch (error) {
         console.error('Failed to create chat:', error);
@@ -213,7 +231,14 @@ function App() {
     };
 
     initializeChat();
-  }, [isAuthenticated, currentTopic, currentSubject, evaluateMessages, quackMode]);
+    
+    // Cleanup function
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [isAuthenticated, currentTopic, currentSubject, quackMode]);
 
   const handleTopicChange = async (topic: string, subject: string) => {
     setCurrentTopic(topic);
@@ -233,7 +258,16 @@ function App() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !chat || isLoading) return;
+    const now = Date.now();
+    const timeSinceLastMessage = now - lastMessageTime;
+    const minInterval = 2000; // 2 seconds minimum between messages
+    
+    if (!inputValue.trim() || !chat || isLoading || timeSinceLastMessage < minInterval) {
+      if (timeSinceLastMessage < minInterval) {
+        console.log('Message throttled - please wait before sending another message');
+      }
+      return;
+    }
     
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -245,6 +279,7 @@ function App() {
     
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
+    setLastMessageTime(now);
     
     // Set flag to evaluate after AI response
     shouldEvaluateRef.current = true;

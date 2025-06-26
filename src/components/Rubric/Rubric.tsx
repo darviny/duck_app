@@ -1,6 +1,6 @@
 import React from 'react';
 import { RubricProps } from '../../types/components';
-import { useAIEvaluation } from '../../contexts/AIEvaluationContext';
+import { useAIEvaluationContext } from '../../contexts/AIEvaluationContext';
 import styles from './Rubric.module.scss';
 
 interface ExtendedRubricProps extends RubricProps {
@@ -11,7 +11,7 @@ const Rubric: React.FC<ExtendedRubricProps> = ({
   className,
   id
 }) => {
-  const { aiEvaluation, onEvaluate, isEvaluating } = useAIEvaluation();
+  const { aiEvaluation, onEvaluate, isEvaluating } = useAIEvaluationContext();
 
   const hasEvaluationResults = aiEvaluation && (
     aiEvaluation.suggestions.length > 0 || 
@@ -41,7 +41,7 @@ const Rubric: React.FC<ExtendedRubricProps> = ({
               <div className={styles.suggestionsSection}>
                 <h4 className={styles.sectionTitle}>Suggestions for Improvement</h4>
                 <ul className={styles.bulletList}>
-                  {aiEvaluation.suggestions.map((suggestion, index) => {
+                  {aiEvaluation.suggestions.map((suggestion: string, index: number) => {
                     // Extract only the first sentence
                     const firstSentence = suggestion.split('.')[0] + '.';
                     return (
