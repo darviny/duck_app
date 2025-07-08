@@ -1,4 +1,4 @@
-@import './reset.scss';
+@use 'reset.scss' as *;
 
 :root {
     font-family: 'DM Sans', sans-serif;

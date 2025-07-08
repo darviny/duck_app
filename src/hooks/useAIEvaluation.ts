@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createAIHooks } from "@aws-amplify/ui-react-ai";
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../../amplify/data/resource';
 import { AIEvaluationData, Message } from '../types/chat';
-import { transformAIEvaluationData, createTranscript, validateAIEvaluationData } from '../utils/aiEvaluation';
+import { AIEvaluationService } from '../services/aiEvaluationService';
 
 const client = generateClient<Schema>();
 const { useAIGeneration } = createAIHooks(client);
@@ -11,6 +11,7 @@ const { useAIGeneration } = createAIHooks(client);
 interface UseAIEvaluationOptions {
   onEvaluationComplete?: (evaluation: AIEvaluationData) => void;
   onEvaluationError?: (error: Error) => void;
+  onEvaluationStart?: () => void;
 }
 
 export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
@@ -24,21 +25,31 @@ export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
   });
 
   const [{ data: aiData, isLoading: aiLoading }, analyzeTranscript] = useAIGeneration("analyzeTranscript");
+  
+  // Create service instance with ref to avoid recreation on every render
+  const serviceRef = useRef<AIEvaluationService>();
+  if (!serviceRef.current) {
+    serviceRef.current = new AIEvaluationService(options);
+  }
+
+  // Update service config when options change
+  useEffect(() => {
+    if (serviceRef.current) {
+      serviceRef.current.updateConfig(options);
+    }
+  }, [options]);
 
   // Process AI data when it changes
   useEffect(() => {
-    if (aiData) {
-      const transformedData = transformAIEvaluationData(aiData);
-      
-      if (validateAIEvaluationData(transformedData)) {
-        setAiEvaluation(transformedData);
-        options.onEvaluationComplete?.(transformedData);
-      } else {
-        const error = new Error('Invalid AI evaluation data received');
-        options.onEvaluationError?.(error);
+    if (aiData && serviceRef.current) {
+      try {
+        const processedEvaluation = serviceRef.current.processAIResponse(aiData);
+        setAiEvaluation(processedEvaluation);
+      } catch (error) {
+        console.error('Error processing AI response:', error);
       }
     }
-  }, [aiData, options]);
+  }, [aiData]);
 
   // Evaluate messages with AI
   const evaluateMessages = useCallback(async (
@@ -46,13 +57,19 @@ export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
     topic: string, 
     subject: string
   ): Promise<void> => {
-    if (messages.length === 0) {
-      console.warn('No messages to evaluate');
+    if (!serviceRef.current) {
+      console.error('AIEvaluationService not initialized');
+      return;
+    }
+
+    if (!serviceRef.current.canEvaluate(messages)) {
+      console.warn('No valid messages to evaluate');
       return;
     }
 
     try {
-      const transcript = createTranscript(messages, topic, subject);
+      const transcript = serviceRef.current.createTranscriptForEvaluation(messages, topic, subject);
+      options.onEvaluationStart?.();
       await analyzeTranscript({ transcript: JSON.stringify(transcript) });
     } catch (error) {
       console.error('Error calling analyzeTranscript:', error);
@@ -62,14 +79,10 @@ export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
 
   // Reset AI evaluation to initial state
   const resetEvaluation = useCallback(() => {
-    setAiEvaluation({
-      clarity: 0,
-      accuracy: 0,
-      engagement: 0,
-      suggestions: [],
-      evidence: [],
-      overall_comment: ''
-    });
+    if (serviceRef.current) {
+      serviceRef.current.resetEvaluation();
+      setAiEvaluation(serviceRef.current.getCurrentEvaluation());
+    }
   }, []);
 
   return {
@@ -78,6 +91,6 @@ export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
     evaluateMessages,
     resetEvaluation,
     isEvaluating: aiLoading,
-    hasEvaluation: aiEvaluation.clarity > 0 || aiEvaluation.accuracy > 0 || aiEvaluation.engagement > 0
+    hasEvaluation: serviceRef.current?.hasActiveEvaluation() ?? false
   };
 }; 
