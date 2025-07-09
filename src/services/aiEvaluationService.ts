@@ -1,4 +1,4 @@
-import { AIEvaluationData, Message, TranscriptData } from '../types/chat';
+import { AIEvaluationData, ChatMessage, TranscriptData } from '../types/chat';
 import { transformAIEvaluationData, createTranscript, validateAIEvaluationData } from '../utils/aiEvaluation';
 
 export interface AIEvaluationServiceConfig {
@@ -44,7 +44,7 @@ export class AIEvaluationService {
    * Create transcript for evaluation
    */
   createTranscriptForEvaluation(
-    messages: Message[], 
+    messages: ChatMessage[], 
     topic: string, 
     subject: string
   ): TranscriptData {
@@ -54,7 +54,7 @@ export class AIEvaluationService {
   /**
    * Validate if messages can be evaluated
    */
-  canEvaluate(messages: Message[]): boolean {
+  canEvaluate(messages: ChatMessage[]): boolean {
     return messages.length > 0 && messages.some(msg => msg.isUser);
   }
 

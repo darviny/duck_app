@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { createAIHooks } from "@aws-amplify/ui-react-ai";
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '../../amplify/data/resource';
-import { AIEvaluationData, Message } from '../types/chat';
+import { AIEvaluationData, ChatMessage } from '../types/chat';
 import { AIEvaluationService } from '../services/aiEvaluationService';
 
 const client = generateClient<Schema>();
@@ -53,7 +53,7 @@ export const useAIEvaluation = (options: UseAIEvaluationOptions = {}) => {
 
   // Evaluate messages with AI
   const evaluateMessages = useCallback(async (
-    messages: Message[], 
+    messages: ChatMessage[], 
     topic: string, 
     subject: string
   ): Promise<void> => {

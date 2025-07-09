@@ -1,4 +1,4 @@
-import { Message, AIEvaluationData, TranscriptData } from '../types/chat';
+import { ChatMessage, AIEvaluationData, TranscriptData } from '../types/chat';
 
 /**
  * Transforms raw AI data into structured AIEvaluationData
@@ -29,7 +29,7 @@ export const transformAIEvaluationData = (aiData: any): AIEvaluationData => {
  * Creates a transcript object for AI evaluation
  */
 export const createTranscript = (
-  messages: Message[], 
+  messages: ChatMessage[], 
   topic: string, 
   subject: string
 ): TranscriptData => {
